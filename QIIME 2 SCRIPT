@@ -53,28 +53,33 @@ qiime feature-table summarize
 --o-visualization table-dada2-v2021-trunc180.qzv 
 --m-sample-metadata-file metadatav5.csv
 
-# 2.6: 
+# 2.6: stats visualization
 qiime feature-table tabulate-seqs 
 --i-data rep-seqs-dada2-v2021-trunc180.qza 
 --o-visualization rep-seqs-dada2-v2021-trunc180.qzv
 
+###################################
+### Step 3: Taxonomy assignment ###
+###################################
 
-# Etape 3 : Assignation taxonomique
+# Silva 138 SSURef NR99 full-length sequences
+# Silva 138 SSURef NR99 full-length taxonomy
 
-3.1 : Réduire la base de données silva aux régions d'intérêts : V1V2
+# 3.1: Reduce Silva database to the V1V2 region
+# forward-reverse -> V1V2: AGAGTTTGATYMTGGCTCAG-GCTGCCTCCCGTAGGAGT, V3: and V4V5: 
 qiime feature-classifier extract-reads 
 --i-sequences silva-138-99-seqs.qza 
 --p-f-primer AGAGTTTGATYMTGGCTCAG 
 --p-r-primer GCTGCCTCCCGTAGGAGT
 --o-reads silva-138-V1V2-ref-seqs.qza
 
-3.2 : Assignation des noms taxonomiques aux petits reads V1V2 issu de la base de données
+# 3.2: Attach taxonomic namles to this smaller V1V2 reads "database"
 qiime feature-classifier fit-classifier-naive-bayes 
 --i-reference-reads silva-138-V1V2-ref-seqs.qza 
 --i-reference-taxonomy silva-138-99-tax.qza 
 --o-classifier silva-138-V1V2-classifier.qza
 
-3.3 : 
+# 3.3 : 
 qiime feature-classifier classify-sklearn 
 --p-n-jobs 1 
 --p-reads-per-batch 1000 
@@ -88,8 +93,9 @@ qiime metadata tabulate
 --m-input-file silva-138-V1V2-taxonomy.qza 
 --o-visualization silva-138-V1V2-taxonomy.qzv
 
-
-# Etape 4 : Filtration
+#########################
+### Step 4: Filtering ###
+#########################
 
 4.1 : Suppression des non-assignés, mitochondries, chloroplastes et eucaryotes
 qiime feature-table filter-features 
