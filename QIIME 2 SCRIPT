@@ -66,7 +66,7 @@ qiime feature-table tabulate-seqs
 # Silva 138 SSURef NR99 full-length taxonomy
 
 # 3.1: Reduce Silva database to the V1V2 region
-# forward-reverse -> V1V2: AGAGTTTGATYMTGGCTCAG-GCTGCCTCCCGTAGGAGT, V3: and V4V5: 
+# forward-reverse -> V1V2: AGAGTTTGATYMTGGCTCAG-GCTGCCTCCCGTAGGAGT, V3: ACTCCTACGGGAGGCAGC-GTATTACCGCGGCKGCTG and V4V5: GTGCCAGCMGCCGCGGTAA-CCGTCAATTCMTTTRAGTTT
 qiime feature-classifier extract-reads 
 	--i-sequences silva-138-99-seqs.qza 
 	--p-f-primer AGAGTTTGATYMTGGCTCAG 
@@ -201,8 +201,9 @@ qiime phylogeny midpoint-root \
 	--i-tree unrooted-tree-V1V2-filtered.qza \
 	--o-rooted-tree rooted-tree-V1V2-filtered.qza
 
-
-# Etape 5 : Taxonomique plot
+##############################
+### Step 5: Taxonomic plot ###
+##############################
 
 # 5.1: Taxonomic plot
 qiime taxa barplot \
@@ -252,7 +253,6 @@ qiime diversity alpha-rarefaction
   	--p-max-depth 20 000
   	--m-metadata-file metadatav3.csv
   	--o-visualization core-metrics-results-2022/alpha-rarefaction-20000.qzv
-
 
 # 5.3: Beta diversity 
 #Repeat this step 3 times, with a change in the column: "order", "cruise-group", and "deep-cat"
