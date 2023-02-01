@@ -1,5 +1,340 @@
 
+########################################################################################################################################################
+################################################# QIIME 2 SCRIPT : PACIFIC DEEP-SEA SPONGES MICROBIOME #################################################
+########################################################################################################################################################
 
-$$$ QIIME 2 SCRIPT : PACIFIC DEEP-SEA SPONGES MICROBIOME $$$
+################################
+### Step 1: Data preparation ###
+################################
+
+# 1.1: Source opening version of qiime2
+source activate qiime2-2021.4
+
+# 1.2: Workspace
+cd /home/lm/Bureau/V1V2_Math
+
+############################################################
+### Step 2: Data cleaning, quality control and filtering ###
+############################################################
+
+2.1: 
+qiime tools import 
+--type 'SampleData[PairedEndSequencesWithQuality]' 
+--input-path manifestV1.csv
+--output-path paired-end-demux.qza 
+--input-format PairedEndFastqManifestPhred33
+
+2.2: Sequences quality control
+qiime demux summarize 
+--i-data paired-end-demux.qza 
+--o-visualization paired-end-demux.qzv
+
+# 2.3: Denoising 
+# trim-trunc -> V1V2: 0-180, V3: 0-170, and V4V5: 0-210
+qiime dada2 denoise-paired
+  --i-demultiplexed-seqs paired-end-demux.qza
+  --p-trim-left-f 0 
+  --p-trim-left-r 0 
+  --p-trunc-len-f 180 
+  --p-trunc-len-r 180 
+  --o-representative-sequences rep-seqs-dada2-v2021-trunc180.qza 
+  --o-table table-dada2-v2021-trunc180.qza 
+  --o-denoising-stats stats-dada2-v2021-trunc180.qza 
+  --p-n-threads 7
+
+# 2.4: Denoising stats visualization
+qiime metadata tabulate 
+  --m-input-file stats-dada2-v2021-trunc180.qza 
+  --o-visualization stats-dada2-v2021-trunc180.qzv
+
+# 2.5: 
+qiime feature-table summarize 
+--i-table table-dada2-v2021-trunc180.qza 
+--o-visualization table-dada2-v2021-trunc180.qzv 
+--m-sample-metadata-file metadatav5.csv
+
+# 2.6: 
+qiime feature-table tabulate-seqs 
+--i-data rep-seqs-dada2-v2021-trunc180.qza 
+--o-visualization rep-seqs-dada2-v2021-trunc180.qzv
+
+
+# Etape 3 : Assignation taxonomique
+
+3.1 : Réduire la base de données silva aux régions d'intérêts : V1V2
+qiime feature-classifier extract-reads 
+--i-sequences silva-138-99-seqs.qza 
+--p-f-primer AGAGTTTGATYMTGGCTCAG 
+--p-r-primer GCTGCCTCCCGTAGGAGT
+--o-reads silva-138-V1V2-ref-seqs.qza
+
+3.2 : Assignation des noms taxonomiques aux petits reads V1V2 issu de la base de données
+qiime feature-classifier fit-classifier-naive-bayes 
+--i-reference-reads silva-138-V1V2-ref-seqs.qza 
+--i-reference-taxonomy silva-138-99-tax.qza 
+--o-classifier silva-138-V1V2-classifier.qza
+
+3.3 : 
+qiime feature-classifier classify-sklearn 
+--p-n-jobs 1 
+--p-reads-per-batch 1000 
+--i-classifier silva-138-V1V2-classifier2.qza 
+--i-reads rep-seqs-dada2-v2021-trunc180.qza 
+--p-confidence 0.8 
+--o-classification silva-138-V1V2-taxonomy.qza
+
+3.4 : Visualisation des microorganismes composant les échantillons
+qiime metadata tabulate 
+--m-input-file silva-138-V1V2-taxonomy.qza 
+--o-visualization silva-138-V1V2-taxonomy.qzv
+
+
+# Etape 4 : Filtration
+
+4.1 : Suppression des non-assignés, mitochondries, chloroplastes et eucaryotes
+qiime feature-table filter-features 
+--i-table table-dada2-v2021-trunc180.qza 
+--m-metadata-file silva-138-V1V2-taxonomy.qza 
+--p-where "Taxon NOT LIKE '%Chloroplast%'" 
+--o-filtered-table table-no-junk2.qza
+
+
+qiime feature-table filter-samples 
+--i-table table-dada2-v2021-trunc180-nojunk.qza table-no-junk138.qza 
+--p-max-frequency 200 000 
+--o-filtered-table filtered-table1.qza
+
+
+
+4.2 : Suppression des échantillons contaminés, blancs, contrôles de PCR, et les échantillons dont la fréquence totale était une valeur aberrante dans la distribution des fréquences d'échantillonnage
+
+qiime feature-table filter-samples 
+--i-table table-no-junk2.qza 
+--m-metadata-file metadatav5.csv 
+--p-where "[sample-name]='blankdeep'" 
+--p-exclude-ids 
+--o-filtered-table filtered-table02.qza
+
+qiime feature-table filter-samples 
+--i-table filtered-table02.qza 
+--m-metadata-file metadatav5.csv 
+--p-where "[sample-name]='blankcono'" 
+--p-exclude-ids 
+--o-filtered-table filtered-table02-09.qza
+
+qiime feature-table filter-samples 
+--i-table filtered-table02-09.qza 
+--m-metadata-file metadatav5.csv 
+--p-where "[sample-name]='blankconc'" 
+--p-exclude-ids 
+--o-filtered-table filtered-table02-09-22.qza
+
+qiime feature-table filter-samples 
+--i-table filtered-table02-09-22.qza 
+--m-metadata-file metadatav5.csv 
+--p-where "[sample-name]='blankpcr'" 
+--p-exclude-ids 
+--o-filtered-table filtered-table02-09-22-25.qza
+
+⇒ filtered-table02-09-22-25.qza (aucune blanc dans cette table)
+
+
+4.2 : Netoyage des séquences ayant des caractéristiques avec une fréquence inférieure à 30 et les caractéristiques qui n'étaient pas partagées par au moins trois échantillons
+
+qiime feature-table filter-samples 
+--i-table filtered-table02-09-22-25.qza 
+--p-min-frequency 3000 
+--o-filtered-table filtered-table2bis.qza
+
+qiime feature-table filter-features 
+--i-table filtered-table2bis.qza 
+--p-min-frequency 30 
+--o-filtered-table filtered-table3bis.qza
+
+qiime feature-table filter-features 
+--i-table filtered-table3bis.qza 
+--p-min-samples 3 
+--o-filtered-table filtered-table4bis.qza
+
+qiime feature-table summarize 
+--i-table filtered-table4bis.qza 
+--o-visualization filtered-table4bis.qzv
+
+qiime feature-table filter-seqs 
+--i-data rep-seqs-dada2-v2021-trunc180.qza 
+--i-table filtered-table4bis.qza 
+--o-filtered-data rep-seqs-dada2-v2021-trunc180-filtered.qza
+
+qiime feature-table tabulate-seqs 
+--i-data rep-seqs-dada2-v2021-trunc180-filtered.qza 
+--o-visualization rep-seqs-dada2-v2021-trunc180-filtered.qzv
+
+
+
+Télécharger les données sur Qiime2view en fichier fasta.
+Sur Maaft, il faut transformer les données avec des _R_ donc aller sur gedit (pour enlever avec cntrl+A, et cntrl+H), et faire un arbre phylogénétique via phyl.io
+
+#Repasser nos données d’un fichier bloc-note à un fichier .qza
+qiime tools import 
+--input-path aligned_V1V2-sequences.fna 
+--output-path aligned_V1V28sequences.qza 
+--type ‘FeatureData[AlignedSequence]’
+
+
+
+
+
+
+
+
+
+
+qiime alignment mafft \
+  --i-sequences rep-seqs-dada2-v2021-trunc180-filtered.qza \
+  --o-alignment rep-seqs-dada2-v2021-trunc180-filtered-aligned.qza
+
+qiime alignment mask \
+  --i-alignment rep-seqs-dada2-v2021-trunc180-aligned.qza \
+  --o-masked-alignment rep-seqs-dada2-v2021-trunc180-filtered-aligned-masked.qza
+
+qiime phylogeny fasttree \ 
+--i-alignment rep-seqs-dada2-v2021-trunc180-filtered-aligned-masked.qza \ 
+--o-tree unrooted-tree-V1V2-filtered.qza
+
+qiime phylogeny midpoint-root \
+--i-tree unrooted-tree-V1V2-filtered.qza \
+--o-rooted-tree rooted-tree-V1V2-filtered.qza
+
+
+# Etape 5 : Taxonomique plot
+
+## Taxonomic plot ##
+qiime taxa barplot \
+  --i-table filtered-table4.qza \
+  --i-taxonomy silva-138-V1V2-taxonomy.qza \
+  --m-metadata-file metadatav3.csv \
+  --o-visualization taxa-bar-plots-V1V2-v2022.qzv
+
+## Alpha & beta ##
+# https://docs.qiime2.org/2018.8/plugins/available/diversity/core-metrics-phylogenetic /
+# Applies a collection of diversity metrics (both phylogenetic and non-phylogenetic) to a feature table.
+
+qiime diversity core-metrics-phylogenetic \
+  --p-n-jobs-or-threads 8 \
+  --i-phylogeny rooted-tree-V1-V2.qza \
+  --i-table filtered-table4.qza \
+  --p-sampling-depth 20 000 \ #Nb seq dans le samples le plus faible: blankdeep
+  --m-metadata-file metadatav3.csv \
+  --output-dir core-metrics-results-2022
+
+## alpha div metrics ##
+
+# phylogenetic diversity
+qiime diversity alpha-group-significance \
+  --i-alpha-diversity core-metrics-results-2022/faith_pd_vector.qza \
+  --m-metadata-file metadatav3.csv \
+  --o-visualization core-metrics-results-2022/faith-pd-group-significance.qzv
+
+# evenness
+qiime diversity alpha-group-significance \
+  --i-alpha-diversity core-metrics-results-2022/evenness_vector.qza \
+  --m-metadata-file metadatav3.csv \
+  --o-visualization core-metrics-results-2022/evenness_vector_group_significance.qzv
+
+# shannon
+qiime diversity alpha-group-significance \
+  --i-alpha-diversity core-metrics-results-2022/shannon_vector.qza \
+  --m-metadata-file metadatav3.csv \
+  --o-visualization core-metrics-results/shannon_vector_group-significance.qzv
+
+# observed features
+qiime diversity alpha-group-significance \
+  --i-alpha-diversity core-metrics-results-2022/observed_features_vector.qza \
+  --m-metadata-file metadatav3.csv \
+  --o-visualization core-metrics-results/observed_features_vector_group-significance.qzv
+
+
+# rarefaction plots
+
+qiime diversity alpha-rarefaction \
+  --i-table filtered-table4.qza \
+  --i-phylogeny rooted-tree-V1V2.qza \
+  --p-max-depth 20 000 \
+  --m-metadata-file metadatav3.csv \
+  --o-visualization core-metrics-results-2022/alpha-rarefaction-20000.qzv
+
+# beta diversity based on unweighted unifrac distances
+#Repeat this steps 3 times, changing the column tio be studies: "order", "cruise-group", and "deep-cat"
+
+qiime diversity beta-group-significance \
+  --i-distance-matrix core-metrics-results-2022/unweighted_unifrac_distance_matrix.qza \
+  --m-metadata-file metadatav3.csv \
+  --m-metadata-column order\ #Need groups with a minimum of 2 samples so I selected the column "order", "cruise-group", and "deep-cat"
+  --o-visualization core-metrics-results-2022/unweighted_unifrac_order-significance.qzv \
+  --p-pairwise
+
+# Remove the function --p-pairwise to be able to have groups with 1 sample
+qiime diversity beta-group-significance \
+  --i-distance-matrix core-metrics-results-2022/unweighted_unifrac_distance_matrix.qza \
+  --m-metadata-file metadatav3.csv \
+  --m-metadata-column family\ 
+  --o-visualization core-metrics-results-2022/unweighted_unifrac_family-significance.qzv \
+
+# beta diversity based on weighted unifrac distances
+# Repeat this steps 3 times, changing the column tio be studies: "order", "cruise-group", and "deep-cat"
+
+ --i-distance-matrix core-metrics-results-2022/weighted_unifrac_distance_matrix.qza \
+  --m-metadata-file metadatav3.csv \
+  --m-metadata-column order\ #Need groups with a minimum of 2 samples so I selected the column "order", "cruise-group", and "deep-cat"
+  --o-visualization core-metrics-results-2022/weighted_unifrac_order-significance.qzv \
+  --p-pairwise
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Move to Step 6 - Taxonomic plot ## in "qiime2_Taxon_log_V1V2-20JUIL2021.txt"
+
+### For Metacoder use # Create a new folder “export”
+# créer un dossier export2023
+
+qiime tools export \
+  --input-path filtered-table4.qza \
+  --output-path export2023
+ 
+#Aller dans le fichier export2023, Y placer le file matadatav5.csv
+#Aller dans le fichier export2023
+cd export2023
+
+biom convert \
+	-i, --input-fp feature-table.biom \
+	-o, --output-fp feature-table-V1V2-filtered.tsv \
+	-m, --sample-metadata-fp metadatav5.csv	
+	--to-tsv						## qiime2 converti feature-table.biom en feature-table.tsv
+
 
 
