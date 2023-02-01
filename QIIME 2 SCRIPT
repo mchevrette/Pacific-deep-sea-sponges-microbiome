@@ -111,6 +111,7 @@ qiime feature-table filter-samples
 	--o-filtered-table filtered-table1.qza
 
 # 4.3: Remove contaminated or weird samples
+# V1V2: samples 35, 27, 14, 09, V3: samples 35, 27, 14, 02, 04, and V4V5: samples 35, 27, 14, 02, 09
 
 qiime feature-table filter-samples
 	--i-table filtered-table1.qza
@@ -139,7 +140,6 @@ qiime feature-table filter-samples
 	--p-where "[sample-name]='blankcono'"
 	--p-exclude-ids
 	--o-filtered-table filtered-table35-27-14-09.qza
-
 
 # 4.4: Remove samples with frequency lower than 3000, features with frequency lower than 30, and Contingency-based filtering
 with a features removing that are not shared by at least 3 samples
