@@ -1,0 +1,757 @@
+
+
+
+##########################################################################################################
+### STEP 0 : IMPORTING LIBRARIES ##############################################################################
+##########################################################################################################
+# Installing qiime2R
+#https://forum.qiime2.org/t/tutorial-integrating-qiime2-and-r-for-data-visualization-and-analysis-using-qiime2r/4121
+if (!requireNamespace("devtools", quietly = TRUE)){install.packages("devtools")}
+devtools::install_github("jbisanz/qiime2R") # current version is 0.99.20
+
+library(ggplot2)
+library(ape)
+library(plyr)
+library(vegan)
+library(RColorBrewer)
+library(reshape2)
+library(scales)
+library(data.table)
+library(microbiome)
+library(dplyr)
+library(phyloseq)
+library(DT) #for interactive tables
+library(qiime2R) 
+
+setwd("~/Math qiime2 export/V1V2")
+
+##########################################################################################################
+### STEP 0 : IMPORTING DATA ##############################################################################
+##########################################################################################################
+
+#Reading Artifacts (.qza): We will start be reading in a table of sequence variants (SVs):
+#?read_qza
+SVs<-read_qza(file = "C:/Users/mcastelin/Documents/Math qiime2 export/V1V2/filtered-table4bis.qza")
+
+
+library(readr)
+AbundRel <- read_delim("AbundRel.csv", delim = ";", 
+                       escape_double = FALSE, trim_ws = TRUE)
+#View(AbundRel)
+
+## Some cmd
+names(SVs)
+SVs$data[1:5,1:5] #show first 5 samples and first 5 taxa
+
+## Read metadata
+library(readr)
+metadatav5 <- read_delim("metadatav5.csv", 
+                         delim = "\t", escape_double = FALSE, 
+                         trim_ws = TRUE)
+View(metadatav5)
+head(metadata)
+
+## Supprimer un fichier de l'environnement Data
+#rm(metadata)
+
+## Taxonomy
+# WARNING : need to replace the taxonomic names first letter of every level by nothing:
+# https://www.tutorialspoint.com/how-to-remove-a-character-in-an-r-data-frame-column#:~:text=Side%20ProgrammingProgramming-,To%20remove%20a%20character%20in%20an%20R%20data%20frame%20column,%22%2C%22%22%2Cas.
+library(readr)
+taxonomy<-read_qza("silva-138-V1V2-taxonomy.qza")
+head(taxonomy$data)
+
+#taxonomy$Taxon <- gsub("d__","",as.character(taxonomy$Taxon))
+#head(taxonomy$data)
+#View(taxonomy)
+#taxonomy
+
+#taxonomy[] <- lapply(taxonomy, gsub, pattern='d__', replacement='')
+#head(taxonomy$data)
+
+## Creating a Phyloseq (=ps) Object
+
+ps <- qza_to_phyloseq(features="filtered-table4bis.qza",
+                    tree= "C:/Users/mcastelin/Documents/Math qiime2 export/V1V2/rooted-tree-V1V2-filtered.qza",
+                    taxonomy="C:/Users/mcastelin/Documents/Math qiime2 export/V1V2/silva-138-V1V2-taxonomy.qza",
+                    metadata = "C:/Users/mcastelin/Documents/Math qiime2 export/V1V2/metadatav5.csv")
+ps
+
+
+
+
+
+colourCount = length(unique(ps.melt_sum$Phylum)) # color palette choice
+getPalette = colorRampPalette(brewer.pal(9, "Set1")) 
+pal <- c("#A54657", "#582630", "#F7EE7F", "#4DAA57", "#F1A66A", "#F26157", "#F9ECCC", "#679289", "#33658A", "#F6AE2D", "#86BBD8", "#A54657", "#582630", "#F7EE7F", "#4DAA57", "#F1A66A", "#F26157", "#F9ECCC", "#679289", "#33658A", "#86BBD8", "#A54657", "#582630") 
+
+
+##########################################################################################################
+### STEP 1 : ABUNDANCE ###################################################################################
+##########################################################################################################
+
+pal <- c("#A54657", "#582630", "#F7EE7F", "#4DAA57", "#F1A66A", "#F26157", "#F9ECCC", "#679289", "#33658A", "#F6AE2D", "#86BBD8", "#A54657", "#582630", "#F7EE7F", "#4DAA57", "#F1A66A", "#F26157", "#F9ECCC", "#679289", "#33658A", "#86BBD8", "#A54657", "#582630") 
+
+#plot_bar(ps, fill="Family")
+
+##### ABSOLUTE ABUNDANCE #####
+
+### Phylum ###
+#plot_bar(ps, fill="Phylum") 
+#plot_bar(ps, x="deepcat", fill="Phylum") +
+#  scale_fill_manual(values=pal)
+
+plot_bar(ps, x="deepcat", fill="Phylum") +
+    geom_bar(aes(fill=Phylum), stat="identity", position="stack") +
+    scale_fill_manual(values=pal)
+
+plot_bar(ps, x="cruise.group", fill="Phylum") + 
+    geom_bar(aes(fill=Phylum), stat="identity", position="stack") + 
+    scale_fill_manual(values=pal)
+
+plot_bar(ps.rel, x="family", fill="Phylum") + 
+  geom_bar(aes(fill=Phylum), stat="identity", position="stack") + 
+  scale_fill_manual(values=pal)
+
+library(ggplot2)
+plot_bar(ps.rel, x="family", fill="Phylum") + 
+  geom_bar(aes(fill=Phylum), stat="identity", position="stack") + 
+  labs(x = "", y = "Relative Abundance (%)", fill = "Phylum") + 
+  scale_fill_manual(values=pal) +
+  theme(axis.text.x = element_text(angle = 90, size = 10, colour = "black", vjust = 0.5, hjust = 1, face= "bold"), 
+        axis.title.y = element_text(size = 12, face = "bold"), legend.title = element_text(size = 12, face = "bold"), 
+        legend.text = element_text(size = 10, face = "bold", colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10, face = "bold"))
+
+
+plot_bar(ps, x="deepcat", fill="Phylum", facet_grid = ~Phylum) + 
+  geom_bar(aes(fill=Phylum), stat="identity", position="stack") + 
+  scale_fill_manual(values=pal)
+
+plot_bar(ps, x="cruise.group", fill="Phylum", facet_grid = ~Phylum) + 
+  geom_bar(aes(fill=Phylum), stat="identity", position="stack") +
+  scale_fill_manual(values=pal)
+
+
+plot_bar(ps.rel, x="family", fill="Phylum", facet_grid = ~Phylum) + 
+  geom_bar(aes(fill=Phylum), stat="identity", position="stack") +
+  scale_fill_manual(values=pal)
+  
+
+
+### Class ###
+#plot_bar(ps, fill="Class")
+#plot_bar(ps, x="deepcat", fill="Class")
+plot_bar(ps, x="deepcat", fill="Class") + 
+  geom_bar(aes(fill=Class), stat="identity", position="stack") + 
+  scale_fill_manual(values=pal)
+
+plot_bar(ps, x="cruise.group", fill="Class") + 
+  geom_bar(aes(fill=Class), stat="identity", position="stack") + 
+  scale_fill_manual(values=pal)
+
+plot_bar(ps, x="family", fill="Class") + 
+  geom_bar(aes(fill=Class), stat="identity", position="stack") + 
+  scale_fill_manual(values=pal)
+
+plot_bar(ps, x="deepcat", fill="Class", facet_grid = ~Class) + 
+  geom_bar(aes(fill=Class), stat="identity", position="stack") + 
+  scale_fill_manual(values=pal)
+
+plot_bar(ps, x="cruise.group", fill="Class", facet_grid = ~Class) + 
+  geom_bar(aes(fill=Class), stat="identity", position="stack") + 
+  scale_fill_manual(values=pal)
+
+plot_bar(ps, x="family", fill="Class", facet_grid = ~Class) + 
+  geom_bar(aes(fill=Class), stat="identity", position="stack") + 
+  scale_fill_manual(values=pal)
+
+
+##### RELATIVE ABUNDANCE #####
+# https://carpentries-incubator.github.io/metagenomics/09-abundance-analyses/index.html
+# https://www.yanh.org/2021/01/01/microbiome-r/
+
+library(phyloseq)
+library(ggplot2)
+pal <- c("#A54657", "#582630", "#F7EE7F", "#4DAA57", "#F1A66A", "#F26157", "#F9ECCC", "#679289", "#33658A", "#F6AE2D", "#86BBD8", "#A54657", "#582630", "#F7EE7F", "#4DAA57", "#F1A66A", "#F26157", "#F9ECCC", "#679289", "#33658A", "#86BBD8", "#A54657", "#582630") 
+
+
+
+##### samples #####
+
+ps.rel = transform_sample_counts(ps, function(x) x/sum(x)*100)
+
+glom <- tax_glom(ps.rel, taxrank = 'Phylum', NArm = FALSE) # agglomerate taxa
+ps.melt <- psmelt(glom)
+
+ps.melt$Phylum <- as.character(ps.melt$Phylum) # change to character for easy-adjusted level
+
+ps.melt <- ps.melt %>%
+  group_by(sample.name, Phylum) %>%
+  mutate(median=median(Abundance))
+
+keep <- unique(ps.melt$Phylum[ps.melt$median > 0.000001]) # select group median > 1
+ps.melt$Phylum[!(ps.melt$Phylum %in% keep)] <- "< 1%"
+
+ps.melt_sum <- ps.melt %>% # to get the same rows together
+  group_by(Sample,sample.name,Phylum) %>%
+  summarise(Abundance=sum(Abundance))
+
+ggplot(ps.melt_sum, aes(x = sample.name, y = Abundance, fill = Phylum)) + 
+  geom_bar(stat = "identity", aes(fill=Phylum)) + 
+  labs(x="Samples", y="Relative abundance (%)") +
+  scale_fill_manual(values=getPalette(colourCount)) +
+  theme_classic() + 
+  theme(strip.background = element_blank(), 
+        axis.text.x.bottom = element_text(angle = -90))
+
+##### samples without NA #####
+
+ps.merged.nam = merge_samples(ps, "sample.name")
+ps.merged.nam
+
+proteo <- subset_taxa(ps.merged.nam, Phylum != "NA")
+proteo
+
+ps.rel = transform_sample_counts(proteo, function(x) x/sum(x)*100)
+
+glom <- tax_glom(ps.rel, taxrank = 'Phylum', NArm = FALSE) # agglomerate taxa
+ps.melt <- psmelt(glom)
+
+ps.melt$Phylum <- as.character(ps.melt$Phylum) # change to character for easy-adjusted level
+
+ps.melt <- ps.melt %>%
+  group_by(sample.name, Phylum) %>%
+  mutate(median=median(Abundance))
+
+keep <- unique(ps.melt$Phylum[ps.melt$median > 0.000001]) # select group median > 1
+ps.melt$Phylum[!(ps.melt$Phylum %in% keep)] <- "< 1%"
+
+ps.melt_sum <- ps.melt %>% # to get the same rows together
+  group_by(Sample,sample.name,Phylum) %>%
+  summarise(Abundance=sum(Abundance))
+
+ggplot(ps.melt_sum, aes(x = sample.name, y = Abundance, fill = Phylum)) + 
+  geom_bar(stat = "identity", aes(fill=Phylum)) + 
+  labs(x="Samples", y="Relative abundance (%)") +
+  scale_fill_manual(values=getPalette(colourCount)) +
+  theme_classic() + 
+  theme(strip.background = element_blank(), 
+        axis.text.x.bottom = element_text(angle = -90))
+
+
+##### family #####
+
+ps.merged.fam = merge_samples(ps, "family")
+ps.merged.fam
+
+ps.rel.fam = transform_sample_counts(ps.merged.fam, function(x) x/sum(x)*100)
+glom.fam <- tax_glom(ps.rel.fam, taxrank = 'Phylum', NArm = FALSE)
+ps.melt <- psmelt(glom.fam)
+ps.melt$Phylum <- as.character(ps.melt$Phylum)
+ps.melt <- ps.melt %>%
+  group_by(family, Phylum) %>%
+  mutate(median=median(Abundance))
+keep <- unique(ps.melt$Phylum[ps.melt$median > 0.00001]) # select group median > 1
+ps.melt$Phylum[!(ps.melt$Phylum %in% keep)] <- "< 1%"
+print(keep)
+
+
+ps.melt_sum <- ps.melt %>% # to get the same rows together
+  group_by(Sample,family,Phylum) %>%
+  summarise(Abundance=sum(Abundance))
+
+ggplot(ps.melt_sum, aes(x = family , y = Abundance, fill = Phylum)) + 
+  geom_bar(stat = "identity", aes(fill=Phylum)) + 
+  labs(x="Family", y="Relative abundance (%)") +
+  scale_fill_manual(values=getPalette(colourCount)) +
+  theme_classic() + 
+  theme(strip.background = element_blank(),
+        axis.text.x.bottom = element_text(angle = 0))
+
+##### family without NA #####
+colourCount = length(unique(ps.melt_sum$Phylum)) # color palette choice
+getPalette = colorRampPalette(brewer.pal(9, "Set1")) 
+
+
+proteo <- subset_taxa(ps.merged.fam, Phylum != "NA")
+proteo
+
+ps.rel.fam = transform_sample_counts(proteo, function(x) x/sum(x)*100)
+glom.fam <- tax_glom(ps.rel.fam, taxrank = 'Phylum', NArm = FALSE)
+ps.melt <- psmelt(glom.fam)
+ps.melt$Phylum <- as.character(ps.melt$Phylum)
+ps.melt <- ps.melt %>%
+  group_by(family, Phylum) %>%
+  mutate(median=median(Abundance))
+keep <- unique(ps.melt$Phylum[ps.melt$median > 0.00001]) # select group median > 1
+ps.melt$Phylum[!(ps.melt$Phylum %in% keep)] <- "< 1%"
+print(keep)
+
+ps.melt_sum <- ps.melt %>% # to get the same rows together
+  group_by(Sample,family,Phylum) %>%
+  summarise(Abundance=sum(Abundance))
+
+ggplot(ps.melt_sum, aes(x = family , y = Abundance, fill = Phylum)) + 
+  geom_bar(stat = "identity", aes(fill=Phylum)) + 
+  labs(x="Family", y="Relative abundance (%)") +
+  scale_fill_manual(values=getPalette(colourCount)) +
+  theme_classic() + 
+  theme(strip.background = element_blank(),
+        axis.text.x.bottom = element_text(angle = 0))
+
+
+##### cruise.group #####
+ps.merged.fam = merge_samples(ps, "cruise.group")
+ps.merged.fam
+
+ps.rel.fam = transform_sample_counts(ps.merged.fam, function(x) x/sum(x)*100)
+glom.fam <- tax_glom(ps.rel.fam, taxrank = 'Phylum', NArm = FALSE)
+ps.melt <- psmelt(glom.fam)
+ps.melt$Phylum <- as.character(ps.melt$Phylum)
+ps.melt <- ps.melt %>%
+  group_by(cruise.group, Phylum) %>%
+  mutate(median=median(Abundance))
+keep <- unique(ps.melt$Phylum[ps.melt$median > 0.00001]) # select group median > 1
+ps.melt$Phylum[!(ps.melt$Phylum %in% keep)] <- "< 1%"
+print(keep)
+
+
+ps.melt_sum <- ps.melt %>% # to get the same rows together
+  group_by(Sample,cruise.group,Phylum) %>%
+  summarise(Abundance=sum(Abundance))
+
+ggplot(ps.melt_sum, aes(x = cruise.group , y = Abundance, fill = Phylum)) + 
+  geom_bar(stat = "identity", aes(fill=Phylum)) + 
+  labs(x="cruise group", y="Relative abundance (%)") +
+  scale_fill_manual(values=getPalette(colourCount)) +
+  theme_classic() + 
+  theme(strip.background = element_blank(),
+        axis.text.x.bottom = element_text(angle = 0))
+
+##### cruise.group without NA #####
+
+ps.merged.cam = merge_samples(ps, "cruise.group")
+ps.merged.cam
+
+proteo <- subset_taxa(ps.merged.cam, Phylum != "NA")
+proteo
+
+ps.rel.fam = transform_sample_counts(proteo, function(x) x/sum(x)*100)
+glom.fam <- tax_glom(ps.rel.fam, taxrank = 'Phylum', NArm = FALSE)
+ps.melt <- psmelt(glom.fam)
+ps.melt$Phylum <- as.character(ps.melt$Phylum)
+ps.melt <- ps.melt %>%
+  group_by(cruise.group, Phylum) %>%
+  mutate(median=median(Abundance))
+keep <- unique(ps.melt$Phylum[ps.melt$median > 0.00001]) # select group median > 1
+ps.melt$Phylum[!(ps.melt$Phylum %in% keep)] <- "< 1%"
+print(keep)
+
+
+ps.melt_sum <- ps.melt %>% # to get the same rows together
+  group_by(Sample,cruise.group,Phylum) %>%
+  summarise(Abundance=sum(Abundance))
+
+ggplot(ps.melt_sum, aes(x = cruise.group , y = Abundance, fill = Phylum)) + 
+  geom_bar(stat = "identity", aes(fill=Phylum)) + 
+  labs(x="Samples", y="Relative abundance (%)") +
+  scale_fill_manual(values=getPalette(colourCount)) +
+  theme_classic() + 
+  theme(strip.background = element_blank(),
+        axis.text.x.bottom = element_text(angle = 0))
+
+
+
+taxa_names(ps) <- gsub(taxa_names(ps), pattern = "d__", replacement = "")
+head(tax_table(ps))
+colnames(tax_table(ps))
+
+my_labels<- c("Ancorinidae", "Geodiidae", "Phymatellidae", "Tethyidae","Tetillidae")
+scale_x_discrete(labels=my_labels)  
+scale_x_discrete(breaks=c("1","2","3","4","5"),
+                   labels=c("Ancorinidae", "Geodiidae", "Phymatellidae", "Tethyidae","Tetillidae")) +  
+ #scale_x_discrete(labels=c("1" = "Ancorinidae", "2" = "Geodiidae","3" = "Phymatellidae", "4"="Tethyidae", "5"="Tetillidae"))
+  
+    
+# breaks = c("Acidobacteriota", "Actinobacteriota","Bdellovibrionota","Chloroflexi","Dadabacteria","Entotheonellaeota","Gemmatimonadota","Myxococcota","Nitrospinota","Nitrospirota","Patescibacteria","Poribacteria","Proteobacteria","SAR324_clade(Marine_group_B)","Schekmanbacteria","Spirochaetota","NA"),
+# labels = c("Acidobacteriota", "Actinobacteriota","Bdellovibrionota","Chloroflexi","Dadabacteria","Entotheonellaeota","Gemmatimonadota","Myxococcota","Nitrospinota","Nitrospirota","Patescibacteria","Poribacteria","Proteobacteria","SAR324_clade(Marine_group_B)","Schekmanbacteria","Spirochaetota","Bacteria")
+
+    
+
+library(tidyverse)
+ps %>% 
+  filter( Phylum != 'Bacteria')    # Remove a category
+  
+ps.merged.fam = merge_samples(ps, "family")
+ps.merged.fam
+  
+  ps.rel.fam = transform_sample_counts(ps.merged.fam, function(x) x/sum(x)*100)
+  glom.fam <- tax_glom(ps.rel.fam, taxrank = 'Phylum', NArm = FALSE)
+  ps.melt <- psmelt(glom.fam)
+  ps.melt$Phylum <- as.character(ps.melt$Phylum)
+  ps.melt <- ps.melt %>%
+    group_by(family, Phylum) %>%
+    mutate(median=median(Abundance))
+  keep <- unique(ps.melt$Phylum[ps.melt$median > 0.1]) # select group median > 1
+  ps.melt$Phylum[!(ps.melt$Phylum %in% keep)] <- "< 1%"
+  print(keep)
+  
+  
+  ps.melt_sum <- ps.melt %>% # to get the same rows together
+    group_by(Sample,family,Phylum) %>%
+    summarise(Abundance=sum(Abundance))
+  
+  ggplot(ps.melt_sum, aes(x = family , y = Abundance, fill = Phylum)) + 
+    geom_bar(stat = "identity", aes(fill=Phylum)) + 
+    labs(x="Samples", y="Relative abundance (%)") +
+    scale_fill_manual(values=pal) +
+    theme_classic() + 
+    theme(strip.background = element_blank(),
+          axis.text.x.bottom = element_text(angle = 0))
+
+  
+  
+  
+##########################################################################################################
+### STEP 2 : ALPHA DIVERSITY #############################################################################
+##########################################################################################################
+
+##### Observed, Shannon, Chao1, InvSimpson #####
+
+library(ggplot2)
+
+sample_data(ps)
+plot_richness(ps) # Observed, Chao1, ACE, Shannon, Simpson, InvSimpson, Fisher
+par(mfrow=c(2,2))
+plot_richness(ps, color="cruise.group", measures=c("Observed", "Shannon", "InvSimpson"))
+plot_richness(ps, color="deepcat", measures=c("Observed", "Shannon", "InvSimpson"))
+plot_richness(ps, color="family", measures=c("Observed", "Shannon", "InvSimpson"))
+
+plot_richness(ps, color="family", measures=c("Chao1"))
+plot_richness(ps, color="deepcat", measures=c("Chao1"))
+plot_richness(ps, color="cruise.group", measures=c("Chao1"))
+
+
+plot_richness(ps, x="deepcat", color="family", measures=c("Observed", "Shannon", "InvSimpson"))
+plot_richness(ps, x="cruise.group", color="family", measures=c("Observed", "Shannon", "InvSimpson"))
+
+plot_richness(ps, x="family", color="deepcat", measures=c("Observed", "Shannon", "InvSimpson"))
+plot_richness(ps, x="cruise.group", color="deepcat", measures=c("Observed", "Shannon", "InvSimpson"))
+
+plot_richness(ps, x="family", color="cruise.group", measures=c("Observed", "Shannon", "InvSimpson"))
+plot_richness(ps, x="deepcat", color="cruise.group", measures=c("Observed", "Shannon", "InvSimpson"))
+
+
+palettes <- c("#6600cc", "#00CC00", "#FFF000", "#DA0000", "#00FFFF", "#23202C")
+
+plot_richness(ps, x="cruise.group", color = "deepcat", measures='Shannon') + theme_bw() + 
+  xlab('deepcat') + 
+  geom_boxplot(lwd=0.6, alpha=0.7, aes(fill=sample_data(ps)$family)) + 
+  scale_fill_manual(values=palettes)
+#+ scale_y_continuous(limits=c(0,4))
+
+plot_richness(ps, x="cruise.group", color = "deepcat", measures="Observed") + theme_bw() +
+  xlab('Cruise-group')  + 
+  geom_boxplot(lwd=0.6, alpha=0.5, aes(fill=sample_data(ps)$family)) +
+  scale_fill_manual(values=palettes)
+
+plot_richness(ps, x="deepcat", color = "cruise.group", measures="Observed") + theme_bw() +
+  xlab('deepcat')  + 
+  geom_boxplot(lwd=0.6, alpha=0.5, aes(fill=sample_data(ps)$family)) + 
+  scale_fill_manual(values=palettes)
+
+#plot_richness(ps, x="family", color = "cruise.group", measures="Observed") + theme_bw() +
+#  xlab('family')  + 
+#  geom_boxplot(lwd=0.6, alpha=0.5, aes(fill=sample_data(ps)$deepcat)) +
+#  scale_fill_manual(values=palette)
+#+ scale_y_continuous(limits=c(0,4))
+
+plot_richness(ps, x="cruise.group", color = "deepcat", measures="Shannon") + theme_bw() +
+  xlab('Cruise-group')  + 
+  geom_boxplot(lwd=0.6, alpha=0.5, position = "dodge2", aes(fill=sample_data(ps)$family)) +
+  scale_fill_manual(values=palettes)
+
+plot_richness(ps, x="deepcat", color = "cruise.group", measures="Shannon") + theme_bw() +
+  xlab('deepcat')  + 
+  geom_boxplot(lwd=0.6, alpha=0.5, aes(fill=sample_data(ps)$family)) +
+  scale_fill_manual(values=palette)
+
+plot_richness(ps, x="cruise.group", color = "deepcat", measures="InvSimpson") + theme_bw() +
+  xlab('Cruise-group')  + 
+  geom_boxplot(lwd=0.6, alpha=0.5, aes(fill=sample_data(ps)$family)) +
+  scale_fill_manual(values=palette)
+
+plot_richness(ps, x="deepcat", color = "cruise.group", measures="InvSimpson") + theme_bw() +
+  xlab('deepcat')  + 
+  geom_boxplot(lwd=0.6, alpha=0.5, aes(fill=sample_data(ps)$family)) +
+  scale_fill_manual(values=palette)
+
+plot_richness(ps, x="family", measures="Shannon") + theme_bw() +
+  xlab('family')  + 
+  geom_boxplot(lwd=0.6, alpha=0.5, aes(fill=sample_data(ps)$cruise.group)) +
+  scale_fill_manual(values=palette)
+
+plot_richness(ps, x="cruise.group", measures=("Observed") + theme_bw() +
+                xlab('cruise.group') + 
+                geom_boxplot(lwd=0.6, alpha=0.5, aes(fill=sample_data(ps)$family)) +
+                scale_fill_manual(values=palette))
+  
+
+### Boxplots des familles selon les indices de diversité alpha ###
+
+pale <- c("#6600cc", "#00CC00", "#FFF000", "#DA0000", "#00FFFF", "#23202C")
+
+
+par(mfrow=c(2,2))
+
+library(ggplot2)
+library(phyloseq)
+
+palette <- c("#B0F2E7", "#166AD0", "#F89EE9", "#DA0000", "#C6C3D3", "#23202C")
+palet <- c("#6600cc", "#00CC00","#00AFBB", "#E7B800", "#FC4E07")
+
+plot_richness(ps, x="family", measures="Observed") + 
+  theme_bw() +
+  xlab('Family')  + 
+  geom_boxplot(lwd=0.4, alpha=0.5, aes(fill=family)) + 
+  theme(axis.text.x = element_text(angle = 90, size = 10, colour = "black", vjust = 0.5, hjust = 1), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10)) +
+  scale_fill_manual(values=palet)
+
+plot_richness(ps, x="family", measures="Shannon") + theme_bw() +
+  xlab('family')  + 
+  geom_boxplot(lwd=0.4, alpha=0.5, aes(fill=family)) + 
+  theme(axis.text.x = element_text(angle = 90, size = 10, colour = "black", vjust = 0.5, hjust = 1), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10)) +
+  scale_fill_manual(values=palet)
+
+plot_richness(ps, x="family", measures="Chao1") + theme_bw() +
+  xlab('family')  + 
+  geom_boxplot(lwd=0.4, alpha=0.5, aes(fill=family)) + 
+  theme(axis.text.x = element_text(angle = 90, size = 10, colour = "black", vjust = 0.5, hjust = 1), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10)) +
+  scale_fill_manual(values=palet)
+
+plot_richness(ps, x="family", measures="InvSimpson") + theme_bw() +
+  xlab('family')  + 
+  geom_boxplot(lwd=0.6, alpha=0.5, aes(fill=family)) + 
+  theme(axis.text.x = element_text(angle = 90, size = 10, colour = "black", vjust = 0.5, hjust = 1), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10)) +
+  scale_fill_manual(values=palet)
+
+##### Hill #####
+
+devtools::install_github("vmikk/metagMisc")
+source("http://bioconductor.org/biocLite.R")
+library("phyloseq")
+install.packages("entropart")
+library("entropart")
+data(otu_table_ps)
+print(otu_table_ps)
+
+# Ns is the total number of read per ASvs/species ? 
+Ns<- as.AbdVector(otu_table_ps)
+print(Ns)
+plot(Ns) #Whittaker Plot
+
+# Species probabilities
+Ps <- as.ProbaVector(otu_table_ps)
+plot(Ps)
+
+# Calculate diversity of order 1, i.e. Shannon's diversity
+Diversity(Ps, q=1) ## None  1543.771
+# Calculate it with estimation bias correction (asymptotic estimator)
+Diversity(Ns, q=1) ##  UnveilJ 1543.771 
+# Extrapolate it up to 99.9% sample coverage (close to the asymptotic estimator)
+Diversity(Ns, q=1, Level=0.999) # Interp 1529.42 
+# Rarefy it to half the sample size
+Diversity(Ns, q=1, Level=sum(Ns)/2) # pas de résultat à vérifier
+
+
+##### Phylogenetic diversity (PD) #####
+
+install.packages("picante",repos="http://R-Forge.R-project.org") 
+library(picante)
+otu_table_ps <- as.data.frame(ps@otu_table)
+metadata_table_ps  <- as.data.frame(ps@sam_data)
+
+library(ape)
+tree <- read.tree("tree.nwk")
+df.pd <- pd(t(otu_table_ps), tree,include.root=F) # t(ou_table) transposes the table for use in picante and the tre file comes from the first code chunck we used to read tree file (see making a phyloseq object section).
+
+datatable(df.pd)
+
+metadata_table_ps$Phyogenetic_diversity <- df.pd$PD 
+
+library(ggplot2)
+plot.pd <- ggplot(metadata_table_ps, aes(family, Phyogenetic_diversity)) + geom_boxplot(aes(fill = cruise.group)) + geom_point(size = 2) + theme(axis.text.x = element_text(size=14, angle = 90)) + scale_fill_manual(values = c("#CBD588", "#5F7FC7", "orange","#DA5724", "#508578")) + theme_bw()
+print(plot.pd)
+
+ggplot(metadata_table_ps, aes(family, Phyogenetic_diversity)) + 
+  theme_bw() +
+  geom_boxplot(lwd=0.4, alpha=0.5, aes(fill=family)) + 
+  scale_fill_manual(values=palet) + 
+  geom_point(size = 2) +
+  theme(axis.text.x = element_text(angle = 90, size = 10, colour = "black", vjust = 0.5, hjust = 1), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10))
+
+
+
+  theme(axis.text.x = element_text(size=14, angle = 90))
+
+
+print(plot.pd)
+
+
+##########################################################################################################
+### STEP 3 : BETA DIVERSITY ##############################################################################
+##########################################################################################################
+
+##### Unweighted UniFrac #####
+
+library(vegan)
+
+## WEIGHTED UNIFRAC - cruise.group 
+wunifrac_dist = phyloseq::distance(ps, method="unifrac", weighted=T)
+ordination = ordinate(ps, method="PCoA", distance=wunifrac_dist)
+plot_ordination(ps, ordination, color="cruise.group") + theme(aspect.ratio=1)
+adonis2(wunifrac_dist ~ sample_data(ps)$cruise.group)
+
+## WEIGHTED UNIFRAC - deepcat
+wunifrac_dist = phyloseq::distance(ps, method="unifrac", weighted=T)
+ordination = ordinate(ps, method="PCoA", distance=wunifrac_dist)
+plot_ordination(ps, ordination, color="deepcat") + theme(aspect.ratio=1)
+adonis2(wunifrac_dist ~ sample_data(ps)$deepcat)
+
+## WEIGHTED UNIFRAC - family
+wunifrac_dist = phyloseq::distance(ps, method="unifrac", weighted=T)
+ordination = ordinate(ps, method="PCoA", distance=wunifrac_dist)
+plot_ordination(ps, ordination, color="family") + theme(aspect.ratio=1)
+adonis2(wunifrac_dist ~ sample_data(ps)$family)
+
+
+##### Weighted UniFrac #####
+
+## UNWEIGHTED UNIFRAC - cruise.group 
+unwunifrac_dist = phyloseq::distance(ps, method="unifrac", weighted=F)
+ordination = ordinate(ps, method="PCoA", distance=unwunifrac_dist)
+plot_ordination(ps, ordination, color="cruise.group") + theme(aspect.ratio=1)
+adonis2(unwunifrac_dist ~ sample_data(ps)$cruise.group)
+
+## UNWEIGHTED UNIFRAC - deepcat
+unwunifrac_dist = phyloseq::distance(ps, method="unifrac", weighted=F)
+ordination = ordinate(ps, method="PCoA", distance=unwunifrac_dist)
+plot_ordination(ps, ordination, color="deepcat") + theme(aspect.ratio=1) + 
+  geom_boxplot(lwd=0.6, alpha=0.5) +
+  scale_fill_manual(values=palette)
+
+adonis2(wunifrac_dist ~ sample_data(ps)$deepcat)
+
+## UNWEIGHTED UNIFRAC - family
+unwunifrac_dist = phyloseq::distance(ps, method="unifrac", weighted=F)
+ordination = ordinate(ps, method="PCoA", distance=unwunifrac_dist)
+plot_ordination(ps, ordination, color="family") + theme(aspect.ratio=1)
+adonis2(wunifrac_dist ~ sample_data(ps)$family)
+
+##### BrayCurtis #####
+
+# Pick the relative abundance table
+rel_abund_assay <- assays(tse)$relabundance
+
+# Calculates Bray-Curtis distances between samples. Because taxa is in
+# columns, it is used to compare different samples. We transpose the
+# assay to get taxa to columns
+bray_curtis_dist <- vegan::vegdist(t(rel_abund_assay), method = "bray")
+
+
+# PCoA
+bray_curtis_pcoa <- ecodist::pco(bray_curtis_dist)
+
+# All components could be found here: 
+# bray_curtis_pcoa$vectors
+# But we only need the first two to demonstrate what we can do:
+bray_curtis_pcoa_df <- data.frame(pcoa1 = bray_curtis_pcoa$vectors[,1], 
+                                  pcoa2 = bray_curtis_pcoa$vectors[,2])
+
+# Create a plot
+bray_curtis_plot <- ggplot(data = bray_curtis_pcoa_df, aes(x=pcoa1, y=pcoa2)) +
+  geom_point() +
+  labs(x = "PC1",
+       y = "PC2", 
+       title = "Bray-Curtis PCoA") +
+  theme(title = element_text(size = 10)) # makes titles smaller
+
+bray_curtis_plot
+
+### Bray-curtis ###
+# https://jkzorz.github.io/2019/06/06/NMDS.html
+# joey711.github.io
+
+library(vegan) #https://rstudio-pubs-static.s3.amazonaws.com/343284_cbadd2f3b7cd42f3aced2d3f42dc6d33.html#beta-diversity
+#pal <- c("#A54657", "#582630", "#F7EE7F", "#4DAA57", "#F1A66A", "#F26157", "#F9ECCC", "#679289", "#33658A", "#F6AE2D", "#86BBD8", "#A54657", "#582630", "#F7EE7F", "#4DAA57", "#F1A66A", "#F26157", "#F9ECCC", "#679289", "#33658A", "#86BBD8", "#A54657", "#582630") 
+
+ord <- ordinate(ps.rel,"MDS","bray") # sample ordination : relative abundance
+plot_ordination(ps.rel, ord, color="family") + # multidimensional scaling (MDS/PCoA)
+  geom_point(pch=3, size=3)
+
+ord <- ordinate(ps,"MDS","bray") # sample ordination : absolute abundance
+plot_ordination(ps, ord, color="family") + # multidimensional scaling (MDS/PCoA)
+  geom_point(pch=3, size=3)
+
+
+
+
+
+
+nmds = metaMDS(ps@otu_table, distance = "bray", k=3, trymax=2) #takes into account both the presence/absence and the abundance of OTUs in your samples
+nmds
+stressplot(nmds)
+par(mfrow = c(1, 1))
+
+plot(nmds, type="n", main="Bray-Curtis") # Create a blank plot for the nmds
+points(nmds, display="sites", col =getPalette(colourCount), pch=20) [metadatav5$`cruise-group`] +
+scale_fill_manual(values=getPalette(colourCount)) 
+points(nmds, display="species", pch=4, color="family")[metadatav5] # Add the points colored by family
+legend(1.90, 1.10, legend=c("samples"), col=c("black"), pch=4) # Add a legend
+
+
+library(vegan)
+data.scores = as.data.frame(scores(nmds$points))
+data.scores = as.data.frame(scores(nmds)$metadatav5)
+metadatafam <- metadatav5$family
+data.scores$metadatafam
+metadatav5$family
+
+plot(nmds, type="n", main="Bray-Curtis") # Create a blank plot for the nmds
+points(nmds, display="species", pch=4, col=c("black")) [metadatav5] 
+legend(2.1, 1.2, legend=c("samples"), col=c("black"), pch=4) # Add a legend
+
+
+print(nmds)
+
+plot(nmds, type="n", main="Bray-Curtis") # Create a blank plot for the nmds
+points(nmds, display="sites", fill="phylum", pch=20, col=pal) [metadatav5$`cruise-group`]
+nmds[["species"]] # afficher les coordonnées des éponges
+nmds[["points"]] # afficher les coordonnées des ASVs
+
+data.scores = as.data.frame(scores(nmds)$species)
+data.scores$family = metadatav5$family
+
+
+
+#Add the points colored by age
+points(BC.nmds, display="sites", pch=20, col=palettes)
+#Add a legend
+
+J.nmds = metaMDS(otu_table_ps, distance="jaccard", k=2, trymax=1)
