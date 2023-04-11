@@ -4,7 +4,7 @@
 ########################################################################################################################################################
 
 ################################
-### Step 1: Data preparation ###
+### STEP 1: Data preparation ###
 ################################
 
 # 1.1: Source opening version of qiime2
@@ -14,7 +14,7 @@ source activate qiime2-2021.4
 cd /home/lm/Bureau/V1V2_Math
 
 ############################################################
-### Step 2: Data cleaning, quality control and filtering ###
+### STEP 2: Data cleaning, quality control and filtering ###
 ############################################################
 
 2.1: 
@@ -205,14 +205,14 @@ qiime phylogeny midpoint-root \
 ### Step 5: Taxonomic plot ###
 ##############################
 
-# 5.1: Taxonomic plot
+# 5.1: taxonomic plot
 qiime taxa barplot \
   	--i-table filtered-table4.qza \
   	--i-taxonomy silva-138-V1V2-taxonomy.qza \
   	--m-metadata-file metadatav3.csv \
   	--o-visualization taxa-bar-plots-V1V2-v2022.qzv
 
-# 5.2: Alpha diversity metrics
+# 5.2: alpha diversity metrics
 # Applies a collection of diversity metrics (both phylogenetic and non-phylogenetic) to a feature table.
 qiime diversity core-metrics-phylogenetic \
   	--p-n-jobs-or-threads 8 \
@@ -278,3 +278,58 @@ qiime diversity beta-group-significance
   	--m-metadata-column order\ #Need groups with a minimum of 2 samples so I selected the column "order", "cruise-group", and "deep-cat"
   	--o-visualization core-metrics-results-2022/weighted_unifrac_order-significance.qzv
   	--p-pairwise
+	
+
+##############################
+### STEP 6: Picrust2 #########
+##############################
+
+# Install latest version of PICRUSt2
+conda install -c bioconda -c conda-forge picrust2
+
+# Next, download and install the q2-picrust2 plugin: https://github.com/gavinmdouglas/q2-picrust2/releases
+# I place it in ./Miniconda3/envs/, then decompress the file, and enter it usint the command-line with cd.
+pip install -e .
+qiime dev refresh-cache
+qiime picrust2 --help
+
+# Go to the directory V1V2_Math and follow these commands: https://github.com/picrust/picrust2/wiki/q2-picrust2-Tutorial
+source activate qiime2-2021.4
+
+# Create the pipeline
+qiime picrust2 full-pipeline \
+   --i-table filtered-table4bis.qza \
+   --i-seq rep-seqs-dada2-v2021--trunc-180-filtered.qza \
+   --output-dir q2-picrust2_V1V2_output \
+   --p-placement-tool sepp \
+   --p-threads 7 \
+   --p-hsp-method pic \
+   --p-max-nsti 2 \
+   --verbose
+
+####> Warning: 493 input sequences aligned poorly to reference sequences (--min_align option specified a minimum proportion of 0.8 aligning to 
+# reference sequences). These input sequences will not be placed and will be excluded from downstream steps. 
+## All ASV were bellow the max NSTI cut-off of 2.0 abd so 	ll will be retained for downstream analyses. 
+
+## Three outputfiles: 
+#ko_metagenome.qza  ## - EC metagenome predictions (rows are EC numbers and columns are samples)
+#ec_metagenome.qza  ## - KO metagenome predictions (rows are KOs and columns are samples).
+#pathway_abundance.qza ## - MetaCyc pathway abundance predictions (rows are pathways and columns are samples).
+
+## Go to the q2-picrust2_V1V2_outputdirectory and make the file visualizable
+
+qiime feature-table summarize \
+   --i-table q2-picrust2_output/pathway_abundance.qza \
+   --o-visualization q2-picrust2_output/pathway_abundance.qzv
+
+## calculating the core diversity metrics
+qiime diversity core-metrics \
+   --i-table pathway_abundance.qza \
+   --p-sampling-depth 200 \
+   --m-metadata-file metadatav5.csv \
+   --output-dir pathabun_core_metrics_out \
+   --p-n-jobs 1
+
+## Continuer le pipeline des indices de diversité/group-significance
+
+
