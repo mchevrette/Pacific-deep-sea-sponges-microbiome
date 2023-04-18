@@ -11,6 +11,7 @@
 source activate qiime2-2021.4
 
 # 1.2: Workspace
+# choose the work environnnement : V1V2_Math, V3_Math, V4V5_Math
 cd /home/lm/Bureau/V1V2_Math
 
 ############################################################
@@ -83,7 +84,7 @@ qiime feature-classifier fit-classifier-naive-bayes
 qiime feature-classifier classify-sklearn 
 	--p-n-jobs 1 
 	--p-reads-per-batch 1000 
-	--i-classifier silva-138-V1V2-classifier2.qza 
+	--i-classifier silva-138-V1V2-clasifier2.qza 
 	--i-reads rep-seqs-dada2-v2021-trunc180.qza 
 	--p-confidence 0.8 
 	--o-classification silva-138-V1V2-taxonomy.qza
