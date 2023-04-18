@@ -1,1 +1,42 @@
+########################################################################################################################################################
+################################################# QIIME 2 SCRIPT : PACIFIC DEEP-SEA SPONGES MICROBIOME #################################################
+########################################################################################################################################################
 
+################################
+### STEP 1: Data preparation ###
+################################
+
+# 1.1: Source opening version of qiime2
+source activate qiime2-2021.4
+
+# 1.2: Workspace
+cd /home/lm/Bureau/MiseqKANADEEP2
+
+############################################################
+### STEP 2: Data cleaning, quality control and filtering ###
+############################################################
+
+2.1: 
+qiime tools import 
+	--type 'SampleData[SequencesWithQuality]' 
+	--input-path manifestMyseq2023K2.csv
+	--output-path joined-sequences-demux.qza 
+	--input-format SingleEndFastqManifestPhred33
+
+2.2: Sequences quality control
+qiime demux summarize 
+	--i-data sequences-demux.qza 
+	--o-visualization sequences-demux.qzv
+
+# 2.3: Denoising 
+# trim-trunc -> V1V2: 0-250
+qiime dada2 denoise-single
+  	--i-demultiplexed-seqs sequences-demux.qza
+  	--p-trunc-len 250 
+  	--p-trunc-q 25
+    --p-n-threads 7
+  --o-table table-dada2-myseq2023.qza
+ 	--o-representative-sequences rep-seqs-dada2-myseq2023.qza 
+ 	--o-denoising-stats stats-dada2-myseq2023.qza 
+  
+  
