@@ -34,9 +34,24 @@ qiime dada2 denoise-single
   	--i-demultiplexed-seqs sequences-demux.qza
   	--p-trunc-len 250 
   	--p-trunc-q 25
-    --p-n-threads 7
-  --o-table table-dada2-myseq2023.qza
+  	--p-n-threads 7
+  	--o-table table-dada2-myseq2023.qza
  	--o-representative-sequences rep-seqs-dada2-myseq2023.qza 
  	--o-denoising-stats stats-dada2-myseq2023.qza 
   
+# 2.4: Denoising stats visualization
+qiime metadata tabulate 
+ 	--m-input-file stats-dada2-myseq2023.qza 
+ 	--o-visualization stats-dada2-myseq2023.qzv
+	
+# 2.5: 
+qiime feature-table summarize 
+	--i-table table-dada2-myseq2023.qza 
+	--o-visualization table-dada2-myseq2023.qzv 
+	--m-sample-metadata-file k2-metadata.csv
+
+# 2.6: stats visualization
+qiime feature-table tabulate-seqs 
+	--i-data rep-seqs-dada2-myseq2023.qza 
+	--o-visualization rep-seqs-dada2-myseq2023.qzv
   
