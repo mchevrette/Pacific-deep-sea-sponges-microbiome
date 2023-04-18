@@ -2,9 +2,10 @@
 ################################################# QIIME 2 SCRIPT : PACIFIC DEEP-SEA SPONGES MICROBIOME #################################################
 ########################################################################################################################################################
 
-################################
-### STEP 1: Data preparation ###
-################################
+########################################################################################################################################################
+### STEP 1: Data preparation ###########################################################################################################################
+########################################################################################################################################################
+
 
 # 1.1: Source opening version of qiime2
 source activate qiime2-2021.4
@@ -12,9 +13,9 @@ source activate qiime2-2021.4
 # 1.2: Workspace
 cd /home/lm/Bureau/MiseqKANADEEP2
 
-############################################################
-### STEP 2: Data cleaning, quality control and filtering ###
-############################################################
+#########################################################################################################################################################
+### STEP 2: Data cleaning, quality control and filtering ################################################################################################
+#########################################################################################################################################################
 
 2.1: 
 qiime tools import 
@@ -54,4 +55,39 @@ qiime feature-table summarize
 qiime feature-table tabulate-seqs 
 	--i-data rep-seqs-dada2-myseq2023.qza 
 	--o-visualization rep-seqs-dada2-myseq2023.qzv
-  
+
+###########################################################################################################################################################
+### Step 3: Taxonomy assignment ###########################################################################################################################
+###########################################################################################################################################################
+
+# Silva 138 SSURef NR99 full-length sequences
+# Silva 138 SSURef NR99 full-length taxonomy
+
+# 3.1: Reduce Silva database to the V1V2 region
+# forward-reverse -> V1V2: AGAGTTTGATYMTGGCTCAG-GCTGCCTCCCGTAGGAGT
+qiime feature-classifier extract-reads 
+	--i-sequences silva-138-99-seqs.qza 
+	--p-f-primer AGAGTTTGATYMTGGCTCAG 
+	--p-r-primer GCTGCCTCCCGTAGGAGT
+	--o-reads silva-138-V1V2-ref-seqs.qza
+	
+# 3.2: Attach taxonomic names to this smaller V1V2 reads "database"
+qiime feature-classifier fit-classifier-naive-bayes 
+	--i-reference-reads silva-138-V1V2-ref-seqs.qza 
+	--i-reference-taxonomy silva-138-99-tax.qza 
+	--o-classifier silva-138-V1V2-classifier.qza
+# 3.3 : 
+qiime feature-classifier classify-sklearn 
+	--p-n-jobs 1 
+	--p-reads-per-batch 1000 
+	--i-classifier silva-138-V1V2-clasifier2.qza 
+	--i-reads rep-seqs-dada2-myseq2023.qza 
+	--p-confidence 0.8 
+	--o-classification silva-138-V1V2-taxonomy.qza
+
+3.4: Visualisation des microorganismes composant les échantillons
+qiime metadata tabulate 
+	--m-input-file silva-138-V1V2-taxonomy.qza 
+	--o-visualization silva-138-V1V2-taxonomy.qzv
+
+
