@@ -203,6 +203,17 @@ qiime phylogeny midpoint-root \
 	--i-tree unrooted-tree-V1V2-filtered.qza \
 	--o-rooted-tree rooted-tree-V1V2-filtered.qza
 
+
+####################################
+### Export phylogenetic tree #######
+###################################
+
+qiime tools export \
+  --input-path rooted-tree-V1V2-filtered.qza \
+  --output-path tree
+
+
+
 ##############################
 ### Step 5: Taxonomic plot ###
 ##############################
