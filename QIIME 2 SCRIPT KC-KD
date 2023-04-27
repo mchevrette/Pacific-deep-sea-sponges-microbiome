@@ -175,16 +175,17 @@ qiime feature-table tabulate-seqs
 	--o-visualization rep-seqs-dada2-v2021-trunc180-filtered.qzv
 
 
-
-Télécharger les données sur Qiime2view en fichier fasta.
+#### Alignement des séquences en dehors de qiime2
+#### Télécharger les données sur qiime2view en fichier fasta.
 Sur Maaft, il faut transformer les données avec des _R_ donc aller sur gedit (pour enlever avec cntrl+A, et cntrl+H), et faire un arbre phylogénétique via phyl.io
+### Après l'alignement, les séquences qui n'étaient pas dans le bon sens ont été RevComp: fichier de sorti: .fna
+### Retour dans qiime2 pour continuer les analyses
 
-# Transform data fna files to data qza files
+# Transform data fna (or fasta) files to data qza files
 qiime tools import 
 	--input-path aligned_V1V2-sequences.fna 
-	--output-path aligned_V1V28sequences.qza 
+	--output-path aligned_V1V2_sequences.qza 
 	--type ‘FeatureData[AlignedSequence]’
-
 
 qiime alignment mafft \
 	--i-sequences rep-seqs-dada2-v2021-trunc180-filtered.qza \
