@@ -995,3 +995,650 @@ heat_tree_matrix(obj_fam,
 citation()
 # Rapport log2 des proportions médianes
 
+
+##########################################################################################################
+### STEP  : DIVERSITE BETA ###############################################################################
+##########################################################################################################
+#### Méthode : MDS (PCoA) / Distance : Bray-Curtis ####
+library(phyloseq)
+
+library(factoextra)
+
+setwd("~/Math qiime2 export/V1V2")
+
+ps1 <- qza_to_phyloseq(features="filtered-table4bis.qza",
+                       tree= "C:/Users/mcastelin/Documents/Math qiime2 export/V1V2/rooted-tree-V1V2-filtered.qza",
+                       taxonomy="C:/Users/mcastelin/Documents/Math qiime2 export/V1V2/silva-138-V1V2-taxonomy-mars2023.qza",
+                       metadata = "C:/Users/mcastelin/Documents/Math qiime2 export/V1V2/metadata.csv")
+ps1
+
+set.seed(4235421)
+ord <- ordinate(ps1, "MDS", "bray")
+ord$vectors
+ord$values
+
+plot_scree(ord, title = "PCoA Eigenvalues - Eponges")
+
+dist_matrix <- vegdist(ord$vectors, method="bray")
+
+adonis_result_fam <- adonis2(dist_matrix ~ sample_data(ps1)$family)
+print(adonis_result_fam)
+
+adonis_result_loc <- adonis2(dist_matrix ~ sample_data(ps1)$locality.id)
+print(adonis_result_loc)
+
+MDSS1 <- plot_ordination(ps1, ord, color ="family", shape = "rides") + theme_bw() + 
+  geom_point(size = 3) +
+  xlab('Axe 1  [12.3%]') + 
+  ylab('Axe 2  [11.4%]') + 
+  labs(color="familles") +
+  ggtitle("V1V2") +
+  theme(axis.text.x = element_text(size = 10, face = "bold", colour = "black", vjust = 0.5), 
+        axis.title.y = element_text(size = 12), 
+        axis.title.x = element_text(size = 12), 
+        legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(face = "bold", colour = "black", size = 10)) +
+  scale_color_manual(values=fampalette) + 
+  scale_shape_discrete(name = "rides")
+
+MDS1 <- MDSS1 + theme (legend.title = element_text(size = 10, face = "bold"))
+MDS1
+
+setwd("~/Math qiime2 export/V3")
+
+ps3 <- qza_to_phyloseq(features="filtered-table3bis.qza",
+                       tree= "C:/Users/mcastelin/Documents/Math qiime2 export/V3/rooted-tree-V3-filtered.qza",
+                       taxonomy="C:/Users/mcastelin/Documents/Math qiime2 export/V3/silva-138-V3-taxonomy.qza",
+                       metadata = "C:/Users/mcastelin/Documents/Math qiime2 export/V3/metadata.csv")
+ps3
+
+set.seed(4235421)
+ord <- ordinate(ps3, "MDS", "bray")
+ord$vectors
+ord$values
+plot_scree(ord, title = "PCoA Eigenvalues - Eponges")
+
+dist_matrix <- vegdist(ord$vectors, method="bray")
+
+adonis_result_fam <- adonis2(dist_matrix ~ sample_data(ps3)$family)
+print(adonis_result_fam)
+
+adonis_result_loc <- adonis2(dist_matrix ~ sample_data(ps3)$locality.id)
+print(adonis_result_loc)
+
+MDSS3 <- plot_ordination(ps3, ord, color ="family", shape = "rides") + theme_bw() + 
+  geom_point(size = 3) +
+  xlab('Axe 1  [14%]') + 
+  ylab('Axe 2  [11.8%]') + 
+  labs(color="famille") +
+  ggtitle("V3") +
+  theme(axis.text.x = element_text(face = "bold", size = 10, colour = "black", vjust = 0.5), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(face = "bold", colour = "black", size = 10)) +
+  scale_color_manual(values=fampalette) + 
+  scale_shape_discrete(name = "rides") +
+  theme(legend.position="none")
+
+MDS3 <- MDSS3 + theme (legend.title = element_text(size = 10, face = "bold"))
+MDS3
+
+setwd("~/Math qiime2 export/V4V5")
+
+ps4 <- qza_to_phyloseq (features="filtered-table3bis.qza",
+                        tree= "C:/Users/mcastelin/Documents/Math qiime2 export/V4V5/rooted-tree-V4V5.qza",
+                        taxonomy="C:/Users/mcastelin/Documents/Math qiime2 export/V4V5/silva-138-V4V5-taxonomy.qza",
+                        metadata = "C:/Users/mcastelin/Documents/Math qiime2 export/V4V5/metadata.csv")
+ps4
+
+set.seed(4235421)
+ord <- ordinate(ps4, "MDS", "bray")
+ord$vectors
+ord$values
+plot_scree(ord, title = "PCoA Eigenvalues - Eponges")
+
+dist_matrix <- vegdist(ord$vectors, method="bray")
+
+adonis_result_fam <- adonis2(dist_matrix ~ sample_data(ps4)$family)
+print(adonis_result_fam)
+
+adonis_result_loc <- adonis2(dist_matrix ~ sample_data(ps4)$locality.id)
+print(adonis_result_loc)
+
+MDSS4 <- plot_ordination(ps4, ord, color ="family", shape = "rides") + theme_bw() + 
+  geom_point(size = 3) +
+  xlab('Axe 1  [17.1%]') + 
+  ylab('Axe 2  [11.7%]') + 
+  labs(color="famille") +
+  ggtitle("V4V5") +
+  theme(axis.text.x = element_text(face = "bold",size = 10, colour = "black", vjust = 0.5), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(face = "bold",colour = "black", size = 10)) +
+  scale_color_manual(values=fampalette) + 
+  scale_shape_discrete(name = "rides") +
+  theme(legend.position="none")
+
+MDS4 <- MDSS4 + theme (legend.title = element_text(size = 10, face = "bold"))
+MDS4
+
+
+#### Méthode : NMDS / Distance : Bray-Curtis ####
+
+library(vegan)
+
+set.seed(4235421)
+ord <- ordinate(ps1, "NMDS", "bray")
+dist_matrix <- vegdist(ord$points, method="bray")
+
+adonis_result_fam <- adonis2(dist_matrix ~ sample_data(ps1)$family)
+print(adonis_result_fam)
+
+adonis_result_loc <- adonis2(dist_matrix ~ sample_data(ps1)$locality.id)
+print(adonis_result_loc)
+
+NMDSS1 <- plot_ordination(ps1, ord, color ="family", shape = "cruise.group") + theme_bw() + 
+  geom_point(size = 3) +
+  labs(color="famille") +
+  ggtitle("V1V2") +
+  theme(axis.text.x = element_text(size = 10, colour = "black", vjust = 0.5), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10)) +
+  scale_color_manual(values=fampalette) + 
+  scale_shape_discrete(name = "campagne")
+
+NMDS1 <- NMDSS1 + theme (legend.title = element_text(size = 10, face = "bold"))
+NMDS1
+
+
+set.seed(4235421)
+ord <- ordinate(ps3, "NMDS", "bray")
+dist_matrix <- vegdist(ord$points, method="bray")
+
+adonis_result_fam <- adonis2(dist_matrix ~ sample_data(ps3)$family)
+print(adonis_result_fam)
+
+adonis_result_loc <- adonis2(dist_matrix ~ sample_data(ps3)$locality.id)
+print(adonis_result_loc)
+
+NMDSS3 <- plot_ordination(ps3, ord, color ="family", shape = "cruise.group") + theme_bw() + 
+  geom_point(size = 3) +
+  labs(color="famille") +
+  ggtitle("V3") +
+  theme(axis.text.x = element_text(size = 10, colour = "black", vjust = 0.5), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10)) +
+  scale_color_manual(values=fampalette) + 
+  scale_shape_discrete(name = "campagne")
+
+NMDS3 <- NMDSS3 + theme (legend.title = element_text(size = 10, face = "bold"))
+NMDS3
+
+set.seed(4235421)
+ord <- ordinate(ps4, "NMDS", "bray")
+dist_matrix <- vegdist(ord$points, method="bray")
+
+adonis_result_fam <- adonis2(dist_matrix ~ sample_data(ps4)$family)
+print(adonis_result_fam)
+
+adonis_result_loc <- adonis2(dist_matrix ~ sample_data(ps4)$locality.id)
+print(adonis_result_loc)
+NMDSS4 <- plot_ordination(ps4, ord, color ="family", shape = "cruise.group") + theme_bw() + 
+  geom_point(size = 3) +
+  labs(color="famille") +
+  ggtitle("V4V5") +
+  theme(axis.text.x = element_text(size = 10, colour = "black", vjust = 0.5), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10)) +
+  scale_color_manual(values=fampalette) + 
+  scale_shape_discrete(name = "campagne")
+
+NMDS4 <- NMDSS4 + theme (legend.title = element_text(size = 10, face = "bold"))
+NMDS4
+
+
+
+library(ggpubr)
+ggarrange(NMDS1,NMDS3,NMDS4,MDS1,MDS3,MDS4 + rremove("x.text"), 
+          labels = c("A", "B", "C", "D", "E", "F"),
+          legend="right",
+          common.legend = TRUE,
+          ncol = 3, nrow = 2)
+
+
+#### Famille - Méthode : PCoA / Distance : Bray-Curtis ####
+
+library(phyloseq)
+library(factoextra)
+
+set.seed(4235421)
+ord <- ordinate(ps1, "MDS", "bray")
+ord$vectors
+ord$values
+plot_scree(ord, title = "PCoA Eigenvalues - Eponges")
+
+dist_matrix <- vegdist(ord$vectors, method="bray")
+
+adonis_result_fam <- adonis2(dist_matrix ~ sample_data(ps1)$family)
+print(adonis_result_fam)
+
+adonis_result_loc <- adonis2(dist_matrix ~ sample_data(ps1)$locality.id)
+print(adonis_result_loc)
+
+MDSS1 <- plot_ordination(ps1, ord, color ="family", shape = "cruise.group") + theme_bw() + 
+  geom_point(size = 3) +
+  xlab('Axe 1  [12.3%]') + 
+  ylab('Axe 2  [11.4%]') + 
+  labs(color="famille") +
+  ggtitle("V1V2") +
+  theme(axis.text.x = element_text(size = 10, colour = "black", vjust = 0.5), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10)) +
+  scale_color_manual(values=locpalette) + 
+  scale_shape_discrete(name = "campagne")
+
+MDS1 <- MDSS1 + theme (legend.title = element_text(size = 10, face = "bold"))
+MDS1
+
+### Tethyidae
+
+ps.teth <- subset_samples(ps1, family=="Tethyidae")
+ps.teth
+
+ord <- ordinate(ps.teth, "PCoA", "bray")
+ord$values
+plot_scree(ord, title = "PCoA Eigenvalues - Tethyidae")
+b.div.bray <- plot_ordination(ps.teth, ord, type="samples", color="locality.id", shape="cruise.group") + geom_point(size=3)
+b.div.bray <- b.div.bray +  ggtitle("Tethyidae") + 
+  theme_classic()
+
+TY <- print(b.div.bray) + theme_bw() + 
+  geom_point(size = 3) +
+  xlab('Axe 1  [32%]') + 
+  ylab('Axe 2  [14.8%]') + 
+  scale_shape_discrete(name = "campagne") +  
+  scale_color_manual(name="localité", values=TYlocpalette) +
+  theme(axis.text.x = element_text(size = 10, colour = "black", vjust = 0.5), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10))
+
+
+### Tetillidae
+
+ps.teti <- subset_samples(ps1, family=="Tetillidae")
+ps.teti
+
+ord <- ordinate(ps.teti, "PCoA", "bray")
+ord$values
+plot_scree(ord, title = "PCoA Eigenvalues - Tetillidae")
+b.div.bray <- plot_ordination(ps.teti, ord, type="samples", color="locality.id", shape="cruise.group") + geom_point(size=3)
+b.div.bray <- b.div.bray +  ggtitle("Tetillidae") + 
+  theme_classic()
+
+TL <- print(b.div.bray) + theme_bw() + 
+  geom_point(size = 3) +
+  xlab('Axe 1  [43.7%]') + 
+  ylab('Axe 2  [26.3%]') + 
+  scale_shape_discrete(name = "campagne") +  
+  scale_color_manual(name="localité", values=TLlocpalette) +
+  theme(axis.text.x = element_text(size = 10, colour = "black", vjust = 0.5), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10))
+
+### Ancorinidae
+
+ps.anco <- subset_samples(ps1, family=="Ancorinidae")
+ps.anco
+
+ord <- ordinate(ps.anco, "PCoA", "bray")
+ord$values
+plot_scree(ord, title = "PCoA Eigenvalues - Ancorinidae")
+b.div.bray <- plot_ordination(ps.anco, ord, type="samples", color="locality.id", shape="cruise.group") + geom_point(size=3)
+b.div.bray <- b.div.bray +  ggtitle("Ancorinidae") + 
+  theme_classic()
+
+AN <- print(b.div.bray) + theme_bw() + 
+  geom_point(size = 3) +
+  xlab('Axe 1  [30.4%]') + 
+  ylab('Axe 2  [24.1%]') + 
+  scale_shape_discrete(name = "campagne") +  
+  scale_color_manual(name="localité", values=ANlocpalette) +
+  theme(axis.text.x = element_text(size = 10, colour = "black", vjust = 0.5), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10))
+
+### Eponges
+
+ord <- ordinate(ps1, "PCoA", "bray")
+ord$values
+plot_scree(ord, title = "PCoA Eigenvalues - Eponges")
+b.div.bray <- plot_ordination(ps, ord, type="samples", color="family", shape="cruise.group") + geom_point(size=3)
+b.div.bray <- b.div.bray + ggtitle("Eponges") + 
+  theme_classic()
+print(b.div.bray)
+
+ALL <- print(b.div.bray) + theme_bw() + 
+  geom_point(size = 3) +
+  xlab('Axe 1  [12.3%]') + 
+  ylab('Axe 2  [11.4%]') + 
+  scale_shape_discrete(name = "campagne") +  
+  scale_color_manual(name="localité", values=fampalette) +
+  theme(axis.text.x = element_text(size = 10, colour = "black", vjust = 0.5), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10))
+
+
+library(ggpubr)
+ggarrange(ALL, TY, TL, AN + rremove("x.text"), 
+          labels = c("A", "B", "C", "D"),
+          legend="right",
+          ncol = 2, nrow=2)
+
+
+
+ord <- ordinate(ps, "PCoA", "bray")
+b.div.bray <- plot_ordination(ps, ord, type="samples", color="locality.id", shape="cruise.group") + geom_point(size=3)
+b.div.bray <- b.div.bray + ggtitle("Eponges") + 
+  theme_classic()
+print(b.div.bray)
+
+ALLL <- print(b.div.bray) + theme_bw() + 
+  geom_point(size = 2) +
+  xlab('Axe 1  [12.3%]') + 
+  ylab('Axe 2  [11.4%]') + 
+  scale_shape_discrete(name = "campagne") +  
+  scale_color_manual(name="localité", values=locfampaletteette) +
+  theme(axis.text.x = element_text(size = 10, colour = "black", vjust = 0.5), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10))
+
+ALL <- ALLL + theme (legend.title = element_text(size = 10, face = "bold"))
+
+ord <- ordinate(ps, "PCoA", "bray")
+b.div.bray <- plot_ordination(ps, ord, type="samples", color="family", shape="cruise.group") + geom_point(size=3)
+b.div.bray <- b.div.bray + ggtitle("Eponges") + 
+  theme_classic()
+print(b.div.bray)
+
+ALLL1 <- print(b.div.bray) + theme_bw() + 
+  geom_point(size = 2) +
+  xlab('Axe 1  [12.3%]') + 
+  ylab('Axe 2  [11.4%]') + 
+  scale_shape_discrete(name = "campagne") +  
+  scale_color_manual(name="famille", values=locfampaletteette) +
+  theme(axis.text.x = element_text(size = 10, colour = "black", vjust = 0.5), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10))
+
+ALL1 <- ALLL1 + theme (legend.title = element_text(size = 10, face = "bold"))
+
+
+ord <- ordinate(ps, "PCoA", "bray")
+b.div.bray <- plot_ordination(ps, ord, type="samples", color="locality.id", shape="family") + geom_point(size=3)
+b.div.bray <- b.div.bray + ggtitle("Eponges") + 
+  theme_classic()
+print(b.div.bray)
+
+ALLL2 <- print(b.div.bray) + theme_bw() + 
+  geom_point(size = 2) +
+  xlab('Axe 1  [12.3%]') + 
+  ylab('Axe 2  [11.4%]') + 
+  scale_shape_discrete(name = "famille") +  
+  scale_color_manual(name="localité", values=locfampaletteette) +
+  theme(axis.text.x = element_text(size = 10, colour = "black", vjust = 0.5), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10))
+
+ALL2 <- ALLL2 + theme (legend.title = element_text(size = 10, face = "bold"))
+
+
+library(ggpubr)
+ggarrange(ALL, ALL1, ALL2 + rremove("x.text"), 
+          labels = c("A", "B", "C"),
+          legend="right",
+          ncol = 3)
+
+
+#### Méthode : Unweighted / Distance : UniFrac ####
+
+
+
+
+unwunifrac_dist = phyloseq::distance(ps1, method="unifrac", weighted=F)
+ordination = ordinate(ps1, method="PCoA", distance=unwunifrac_dist)
+adonis2(unwunifrac_dist ~ sample_data(ps1)$family)
+adonis2(unwunifrac_dist ~ sample_data(ps1)$locality.id)
+UUU1 <- plot_ordination(ps1, ordination, color="family", shape ="cruise.group") + theme_bw() +
+  geom_point(size = 2) +
+  xlab('Axe 1  [14%]') + 
+  ylab('Axe 2  [11.3%]') + 
+  ggtitle("V1V2 : PCoA ~ Unifrac unweighted") +
+  scale_shape_discrete(name = "campagne") +  
+  scale_color_manual(name="famille", values=fampalette) + 
+  theme(axis.text.x = element_text(size = 10, colour = "black", vjust = 0.5), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10))
+
+UU1 <- UUU1 + theme (legend.title = element_text(size = 10, face = "bold"))
+UU1
+
+d <- data.frame(c( "R2=0.27", "F=2.5019"))
+
+UU1 + annotate("label", x=0.5, y=0.22, table="d")
+
+unwunifrac_dist = phyloseq::distance(ps3, method="unifrac", weighted=F)
+ordination = ordinate(ps3, method="PCoA", distance=unwunifrac_dist)
+adonis2(unwunifrac_dist ~ sample_data(ps3)$family)
+adonis2(unwunifrac_dist ~ sample_data(ps3)$locality.id)
+UUU3 <- plot_ordination(ps3, ordination, color="family", shape ="cruise.group") + theme_bw() +
+  geom_point(size = 2) +
+  xlab('Axe 1  [23.1%]') + 
+  ylab('Axe 2  [15%]') + 
+  ggtitle("V3 : PCoA ~ Unifrac unweighted") +
+  scale_shape_discrete(name = "campagne") +  
+  scale_color_manual(name="famille", values=fampalette) +
+  theme(axis.text.x = element_text(size = 10, colour = "black", vjust = 0.5), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10))
+
+UU3 <- UUU3 + theme (legend.title = element_text(size = 10, face = "bold"))
+UU3
+
+
+unwunifrac_dist = phyloseq::distance(ps4, method="unifrac", weighted=F)
+ordination = ordinate(ps4, method="PCoA", distance=unwunifrac_dist)
+adonis2(unwunifrac_dist ~ sample_data(ps4)$family)
+adonis2(unwunifrac_dist ~ sample_data(ps4)$locality.id)
+UUU4 <- plot_ordination(ps4, ordination, color="family", shape ="cruise.group") + theme_bw() +
+  geom_point(size = 2) +
+  xlab('Axe 1  [21.9%]') + 
+  ylab('Axe 2  [15.2%]') + 
+  ggtitle("V4V5 : PCoA ~ Unifrac unweighted") +
+  scale_shape_discrete(name = "campagne") +  
+  scale_color_manual(name="famille", values=fampalette) +
+  theme(axis.text.x = element_text(size = 10, colour = "black", vjust = 0.5), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10))
+
+UU4 <- UUU4 + theme (legend.title = element_text(size = 10, face = "bold"))
+UU4
+ 
+#### Méthode : Weighted / Distance : UniFrac ####
+
+wunifrac_dist = phyloseq::distance(ps1, method="unifrac", weighted=T)
+print(wunifrac_dist)
+ordination = ordinate(ps1, method="PCoA", distance=wunifrac_dist)
+print(ordination)
+adonis2(wunifrac_dist ~ sample_data(ps1)$family)
+WUU1 <- plot_ordination(ps1, ordination, color="family", shape ="cruise.group") + theme_bw() +
+  geom_point(size = 2) +
+  xlab('Axe 1  [20.1%]') + 
+  ylab('Axe 2  [13%]') + 
+  ggtitle("V1V2 : PCoA ~ Unifrac weighted") +
+  scale_shape_discrete(name = "campagne") +  
+  scale_color_manual(name="famille", values=fampalette) +
+  theme(axis.text.x = element_text(size = 10, colour = "black", vjust = 0.5), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10))
+
+WU1 <- WUU1 + theme (legend.title = element_text(size = 10, face = "bold"))
+WU1
+
+wunifrac_dist = phyloseq::distance(ps3, method="unifrac", weighted=T)
+ordination = ordinate(ps3, method="PCoA", distance=wunifrac_dist)
+adonis2(wunifrac_dist ~ sample_data(ps3)$family)
+WUU3 <- plot_ordination(ps3, ordination, color="family", shape ="cruise.group") + theme_bw() +
+  geom_point(size = 2) +
+  xlab('Axe 1  [68.8%]') + 
+  ylab('Axe 2  [14.7%]') + 
+  ggtitle("V3 : PCoA ~ Unifrac weighted") +
+  scale_shape_discrete(name = "campagne") +  
+  scale_color_manual(name="famille", values=fampalette) +
+  theme(axis.text.x = element_text(size = 10, colour = "black", vjust = 0.5), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10))
+
+WU3 <- WUU3 + theme (legend.title = element_text(size = 10, face = "bold"))
+WU3
+
+
+
+wunifrac_dist = phyloseq::distance(ps4, method="unifrac", weighted=T)
+ordination = ordinate(ps4, method="PCoA", distance=wunifrac_dist)
+adonis2(wunifrac_dist ~ sample_data(ps4)$family) 
+WUU4 <- plot_ordination(ps4, ordination, color="family", shape ="cruise.group") + theme_bw() +
+  geom_point(size = 2) +
+  xlab('Axe 1  [36%]') + 
+  ylab('Axe 2  [18.4%]') + 
+  ggtitle("V4V5 : PCoA ~ Unifrac weighted") +
+  scale_shape_discrete(name = "campagne") +  
+   scale_color_manual(name="famille", values=fampalette) +
+   theme(axis.text.x = element_text(size = 10, colour = "black", vjust = 0.5), 
+         axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+         legend.text = element_text(size = 10, colour = "black"), 
+         axis.text.y = element_text(colour = "black", size = 10))
+ 
+WU4 <- WUU4 + theme (legend.title = element_text(size = 10, face = "bold"))
+WU4
+ 
+library(ggpubr)
+ggarrange(UU1,UU3,UU4,WU1,WU3,WU4 + rremove("x.text"), 
+          labels = c("A", "B", "C", "D", "E", "F"),
+          legend="right",
+          common.legend = TRUE,
+          ncol = 3, nrow = 2)
+
+
+
+##########################################################################################################
+### STEP  : NETWORKS #####################################################################################
+##########################################################################################################
+
+library(biogeonetworks)
+library(plyr)
+library(tidyverse)
+library(labdsv)
+
+#chargement des fichiers
+eponge <- read.table("V1V2_network.csv", sep=";", header=TRUE) 
+ab_tab <- read_delim("V1V2_network.csv", 
+                     delim = ";", escape_double = FALSE, trim_ws = TRUE) %>%
+  select(c(species, sites, abundance))
+
+res <- as.data.frame.matrix(xtabs(abundance ~ sites + species, ab_tab)) #fichier qu'on utilisera pour indval
+
+#analyse par infomap -> donne les clusters 
+writePajek(eponge, 
+           site.field = "sites",
+           species.field = "species", 
+           filename = "epongeV1.net",
+           abundance.field = "abundance")
+
+system("~/Documents/Stat/Infomap --tree -N 100 sponge.net ./") #changer le chemin pour que ça aille au bon endroit dans ton ordi
+sponge.clusters <- readInfomapTree("epongeV1.net.tree",
+                                   replace.leaf.names = TRUE)
+write.csv(sponge.clusters, file = "V1V2_cluster.csv")
+write.csv(sponge.clusters, file="V1V2_cluster.csv") #fichier avec les clusters
+
+#métriques par le package "biogeonetwork"
+lvl1metrics <- clusterMetrics(db = eponge, # Database of step 1
+                              network = sponge.clusters, # Clustering results
+                              site.field = "sites", # Name of site column in your database
+                              species.field = "species", # Name of species column in your database
+                              level = "lvl1")# Clustering evel at which we calculate metrics (on peut regarder au niveau 2 aussi si il y a plus que 2 niveaux)
+stat_species <- lvl1metrics$species.stats %>%
+  select(c("species","cluster","Endemism"))
+
+write.csv2(lvl1metrics$site.stats, file = "stat.sites.csv")
+write.csv2(lvl1metrics$species.stats, file = "stat.species.csv")
+write.csv2(lvl1metrics$network.stats, file = "stat.network.csv")
+write.csv2(lvl1metrics$region.stats, file = "stat.regions.csv")
+
+#liste des clusters/éponge l'endroit correspond au numéro de l'espèce et le numéro au cluster
+cluster <- sponge.clusters %>%
+  select(lvl1,lvl2) %>%
+  rename(cluster = lvl1, polygone_unique = lvl2) %>%
+  arrange(polygone_unique) %>%
+  column_to_rownames(var = "polygone_unique") %>%
+  pull()
+
+#calculs des indicators values, donne une liste de tableau
+indval_clust <- indval(res, cluster, numitr = 999)
+
+#on extrait chaque tableau
+indval_value <- as_tibble(indval_clust$indval, rownames = NA) %>% rownames_to_column(var = "taxa") #indicator value (IndVal) of each species in each cluster
+relfrq_value <- as_tibble(indval_clust$relfrq, rownames = NA) %>% rownames_to_column(var = "taxa")# Fidélité = relative frequency of the species in each group = number of sites where species is present/number of sites in the group 
+relabu_value <- as_tibble(indval_clust$relabu, rownames = NA) %>% rownames_to_column(var = "taxa")# Spécificité = relative abundance of the species across groups = total abundance in group/grand total abundance 
+maxcls_value <- as_tibble(indval_clust$maxcls, rownames = NA) %>% rownames_to_column(var = "taxa")#cluster where the species has highest IndVal
+indcls_value <- as_tibble(indval_clust$indcls, rownames = NA) %>% rownames_to_column(var = "taxa")#highest IndVal of the species
+pval_value <- as_tibble(indval_clust$pval, rownames = NA) %>% rownames_to_column(var = "taxa") #permutational p-value of IndVal
+pval.adj <- as_tibble(p.adjust(indval_clust$pval), rownames =NA) %>%
+  rename(pvalue.adj = value) %>%
+  rownames_to_column(var = "taxa")
+
+#on les exportes en csv
+write_csv(indval_value, file = "indval_taxa.csv" )
+write_csv(relfrq_value, file = "relative_frequency_within_cluster.csv" )
+write_csv(relabu_value, file = "relative_abund_across_cluster.csv" )
+write_csv(maxcls_value, file = "highest_indval_cluster.csv" )
+write_csv(indcls_value, file = "highest_indval_taxa.csv" )
+write_csv(pval_value, file = "pvalue_indval.csv" )
+write_csv(highest_indval_taxa, file = "summary_indicator_taxa.csv" ) #error
+
+#si on veut faire gephy, d'abord on assigne les couleurs par clusters puis on écrit le fichier sous le bon format
+sponge.clusters <- attributeColors(network = sponge.clusters, # Same object as input & output
+                                   lvl = "lvl1", # Which hierarchical level are we working on?
+                                   nb.max.colors = 9, # We chose two clusters as significant for level 1
+                                   sh.grey = TRUE,
+                                   other.color = grey(0.5), # Minor clusters will be black
+                                   cluster.order = "sites", # Cluster order for colours (see below)
+                                   db = eponge, # Database of step 1
+                                   site.field = "Sites", # Name of site column in your database
+                                   species.field = "ASVs_ID")
+
+writeGDF(db = eponge, # Database of step 1
+         site.field = "Sites", # Name of site column in your database
+         species.field = "ASVs_ID", # Name of species column in your database
+         network = sponge.clusters, 
+         filename = "spongeV1.gdf",
+         color.field = "color",
+         abundance.field="abundance") # Name of the color field in the network
+
+
