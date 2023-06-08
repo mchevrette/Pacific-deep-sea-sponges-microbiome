@@ -6,7 +6,7 @@
 ### STEP 0a : IMPORTING LIBRARIES ########################################################################
 ##########################################################################################################
 # Installing qiime2R
-#https://forum.qiime2.org/t/tutorial-integrating-qiime2-and-r-for-data-visualization-and-analysis-using-qiime2r/4121
+# https://forum.qiime2.org/t/tutorial-integrating-qiime2-and-r-for-data-visualization-and-analysis-using-qiime2r/4121
 if (!requireNamespace("devtools", quietly = TRUE)){install.packages("devtools")}
 devtools::install_github("jbisanz/qiime2R") # current version is 0.99.20
 
@@ -61,83 +61,87 @@ ps4
 ### V1-V2
 bactpalette1 <- c("#e41a1c","#ec83ba","#4a72a6","#974661","#48a462","#e1c62f","#d26b4b","#a35390","#ffb716","#ff7f00","#7e6e85","#fff02d","#5d995d","#b97b2a","#b75f49","#db728c","#3e8e93","#c28ea9")
 
-#Acidobacteriota = "#e41a1c"
-#Actinobacteriota = "#974661"
-#Bacteroidota = "#4a72a6"
-#Bdellovibrionota = "#3e8e93"
-#Chloroflexi = "#48a462" 
-#Deinococcota = "#5d995d"
-#Entotheonellaeota = "#7e6e85"
-#Gemmatimonadota = "#a35390"
-#Myxococcota = "#d26b4b"
-#NB1-j = "#ff7f00"
-#Nitrospirota = "#ffb716"
-#Patescibacteria = "#fff02d"
-#Planctomycetota = "#e1c62f"
-#Poribacteria = "#b97b2a"
-#Proteobacteria = "#b75f49"
-#SAR324_clade(Marine-group-B) = "#db728c" 
-#Spirochaetota = "#ec83ba"
-#Verrucomicrobiota = "#c28ea9"
+# Acidobacteriota = "#e41a1c"
+# Actinobacteriota = "#974661"
+# Bacteroidota = "#4a72a6"
+# Bdellovibrionota = "#3e8e93"
+# Chloroflexi = "#48a462" 
+# Deinococcota = "#5d995d"
+# Entotheonellaeota = "#7e6e85"
+# Gemmatimonadota = "#a35390"
+# Myxococcota = "#d26b4b"
+# NB1-j = "#ff7f00"
+# Nitrospirota = "#ffb716"
+# Patescibacteria = "#fff02d"
+# Planctomycetota = "#e1c62f"
+# Poribacteria = "#b97b2a"
+# Proteobacteria = "#b75f49"
+# SAR324_clade(Marine-group-B) = "#db728c" 
+# Spirochaetota = "#ec83ba"
+# Verrucomicrobiota = "#c28ea9"
 
 ### V3
 bactpalette3 <- c("#e41a1c","#ec83ba","#4a72a6","#d26b4b","#a35390","#ffb716","#7e6e85","#b75f49","#00b159","#3e8e93","#c28ea9")
 
-#Acidobacteriota = "#e41a1c"
-#Actinobacteriota = "#ec83ba"
-#Bacteroidota = "#4a72a6"
-#Enthotheonellaeota = "#d26b4b"
-#Gemmatimonadota = "#a35390"
-#Myxococcota = "#ffb716"
-#Nitrospirota = "#7e6e85"
-#Proteobacteria = "#b75f49"
-#RCP2-54 = "#00b159"
-#Spirochaetota = "#3e8e93"
-#Verrucomicrobiota = "#c28ea9"
+# Acidobacteriota = "#e41a1c"
+# Actinobacteriota = "#ec83ba"
+# Bacteroidota = "#4a72a6"
+# Enthotheonellaeota = "#d26b4b"
+# Gemmatimonadota = "#a35390"
+# Myxococcota = "#ffb716"
+# Nitrospirota = "#7e6e85"
+# Proteobacteria = "#b75f49"
+# RCP2-54 = "#00b159"
+# Spirochaetota = "#3e8e93"
+# Verrucomicrobiota = "#c28ea9"
 
 ### V4-V5
 bactpalette4 <- c("#e41a1c","#ec83ba","#4a72a6","#48a462","#E7B800","#FC4E07","#a35390","#5d995d","#b75f49","#3e8e93","#c28ea9")
 
-#Acidobacteriota = "#e41a1c"
-#Actinobacteriota = "#ec83ba"
-#Bacteroidota = "#4a72a6"
-#Chloroflexi = "#48a462" 
-#Crenarchaeota = "#E7B800"
-#Firmicutes = "#FC4E07"
-#Gemmatimonadota = "#a35390"
-#Planctomycetota = "#5d995d"
-#Proteobacteria = "#b75f49"
-#Spirochaetota = "#3e8e93"
-#Verrucomicrobiota = "#c28ea9"
+# Acidobacteriota = "#e41a1c"
+# Actinobacteriota = "#ec83ba"
+# Bacteroidota = "#4a72a6"
+# Chloroflexi = "#48a462" 
+# Crenarchaeota = "#E7B800"
+# Firmicutes = "#FC4E07"
+# Gemmatimonadota = "#a35390"
+# Planctomycetota = "#5d995d"
+# Proteobacteria = "#b75f49"
+# Spirochaetota = "#3e8e93"
+# Verrucomicrobiota = "#c28ea9"
 
-# Familles
+##### Familles
 fampalette <- c("#6600cc", "#00CC00","#00AFBB", "#E7B800", "#FC4E07")
 
-#Ancorinidae = "#6600cc"
-#Geodiidae = "#00CC00"
-#Phymatellidae = "#00AFBB"
-#Tethyidae = "#E7B800"
-#Tetillidae = "#FC4E07"
+# Ancorinidae = "#6600cc"
+# Geodiidae = "#00CC00"
+# Phymatellidae = "#00AFBB"
+# Tethyidae = "#E7B800"
+# Tetillidae = "#FC4E07"
 
-# Localités
-#locpalette <- c("#00b159","#ffc425","#990033","#00aedb","#663399","#f37735","#d11141","#4a72a6","#ec83ba")
+##### Localités
+# locpalette <- c("#00b159","#ffc425","#990033","#00aedb","#663399","#f37735","#d11141","#4a72a6","#ec83ba")
 
-#Chesterfield = "#990033"
-#Lansdowne = "#d11141"
-#Nova = "#ec83ba"
-#Kelso = "#f37735" 
-#Capel = "#ffc425"
-#Ile des pins = "#663399"
-#Munida = "#4a72a6"
-#Crypthélia = "#00aedb"
-#Antigonia = "#00b159"
+# Chesterfield = "#990033"
+# Lansdowne = "#d11141"
+# Nova = "#ec83ba"
+# Kelso = "#f37735" 
+# Capel = "#ffc425"
+# Ile des pins = "#663399"
+# Munida = "#4a72a6"
+# Crypthélia = "#00aedb"
+# Antigonia = "#00b159"
 
-#TYlocpalette <- c("#00b159","#ffc425","#990033","#663399","#f37735","#4a72a6")
-#TLlocpalette <- c("#ffc425","#990033","#f37735","#d11141")
-#ANlocpalette <- c("#ffc425","#990033","#00aedb","#663399","#d11141","#4a72a6")
+# TYlocpalette <- c("#00b159","#ffc425","#990033","#663399","#f37735","#4a72a6")
+# TLlocpalette <- c("#ffc425","#990033","#f37735","#d11141")
+# ANlocpalette <- c("#ffc425","#990033","#00aedb","#663399","#d11141","#4a72a6")
 
 ##########################################################################################################
-### STEP  : DIVERSITE ALPHA ##############################################################################
+### STEP  1 : INDICES DE DIVERSITE #######################################################################
+##########################################################################################################
+
+##########################################################################################################
+### STEP 1a  : DIVERSITE ALPHA ###########################################################################
 ##########################################################################################################
 library(phyloseq)
 
@@ -329,6 +333,92 @@ write.csv2(sh44$data, file = "shannonV4V5.csv")
 # write.csv2(is33$data, file = "invsimpsonV3.csv")
 # write.csv2(is44$data, file = "invsimpsonV4V5.csv")
 
+##########################################################################################################
+### STEP 1b  : DIVERSITE PHYLOGENETIQUE ##################################################################
+##########################################################################################################
+# install.packages("picante",repos="http://R-Forge.R-project.org") 
+library(picante)
+library(ape)
+library(ggplot2)
+library(ggpubr)
+
+### V1-V2
+otu_table_ps1 <- as.data.frame(ps1@otu_table)
+metadata_table_ps1  <- as.data.frame(ps1@sam_data)
+tree1 <- read.tree("tree.nwk")
+
+df.pd <- pd(t(otu_table_ps1), tree1, include.root=F) # t(ou_table) transposes the table for use in picante and the tree file comes from the first code chunck we used to read tree file (see making a phyloseq object section).
+datatable(df.pd)
+metadata_table_ps1$Phyogenetic_diversity <- df.pd$PD 
+
+
+pd11 <- ggplot(metadata_table_ps1, aes(family, Phyogenetic_diversity)) + 
+  theme_bw() +
+  geom_boxplot(lwd=0.4, alpha=0.5, aes(fill=family)) + 
+  scale_fill_manual(values=fampalette) + 
+  geom_point(size = 2) +
+  theme(axis.text.x = element_text(size = 10, colour = "black", vjust = 0.5), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10)) +
+  stat_compare_means(method = "kruskal.test")
+
+### V3
+otu_table_ps3 <- as.data.frame(ps3@otu_table)
+metadata_table_ps3  <- as.data.frame(ps3@sam_data)
+tree3 <- read.tree("tree.nwk")
+
+df.pd <- pd(t(otu_table_ps3), tree3, include.root=F) # t(ou_table) transposes the table for use in picante and the tre file comes from the first code chunck we used to read tree file (see making a phyloseq object section).
+datatable(df.pd)
+metadata_table_ps3$Phyogenetic_diversity <- df.pd$PD 
+
+pd33 <- ggplot(metadata_table_ps3, aes(family, Phyogenetic_diversity)) + 
+  theme_bw() +
+  geom_boxplot(lwd=0.4, alpha=0.5, aes(fill=family)) + 
+  scale_fill_manual(values=fampalette) + 
+  geom_point(size = 2) +
+  theme(axis.text.x = element_text(size = 10, colour = "black", vjust = 0.5), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10)) +
+  stat_compare_means(method = "kruskal.test")
+
+### V4-V5
+otu_table_ps4 <- as.data.frame(ps4@otu_table)
+metadata_table_ps4  <- as.data.frame(ps4@sam_data)
+tree4 <- read.tree("tree.nwk")
+
+df.pd <- pd(t(otu_table_ps4), tree4, include.root=F) # t(ou_table) transposes the table for use in picante and the tre file comes from the first code chunck we used to read tree file (see making a phyloseq object section).
+datatable(df.pd)
+metadata_table_ps4$Phyogenetic_diversity <- df.pd$PD 
+
+pd44 <- ggplot(metadata_table_ps4, aes(family, Phyogenetic_diversity)) + 
+  theme_bw() +
+  geom_boxplot(lwd=0.4, alpha=0.5, aes(fill=family)) + 
+  scale_fill_manual(values=fampalette) + 
+  geom_point(size = 2) +
+  theme(axis.text.x = element_text(size = 10, colour = "black", vjust = 0.5), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10)) +
+  stat_compare_means(method = "kruskal.test")
+
+library(ggpubr)
+figurepd <- ggarrange(pd11, pd33, pd44, 
+                     labels = c("A", "B", "C"),
+                     legend="right",
+                     common.legend = TRUE,
+                     ncol = 3)
+figurepd
+
+# enregistrer les données de chaque objet sous un format excel
+write.csv2(pd11$data, file = "pdV1V2.csv")
+write.csv2(pd33$data, file = "pdV3.csv")
+write.csv2(pd44$data, file = "pdV4V5.csv")
+
+
+### Combiner tous les gènes sur un même graphique selon l'indice observé
+
 setwd("~/Math qiime2 export/3genes")
 library(readr)
 library(ggplot2)
@@ -375,7 +465,7 @@ shf <- sha + theme_bw() +
   theme(legend.position="none")
 shf
 
-## Invsimpson
+# Invsimpson
 # invsimpson3genesbis <- read_delim("invsimpson3genesbis.csv",  delim = "\t", escape_double = FALSE, 
                                   col_types = cols(Ancorinidae = col_number(),Geodiidae = col_number(),
                                                    Phymatellidae = col_number(),Tethyidae = col_number(), 
@@ -397,23 +487,11 @@ shf
   scale_fill_grey(start = 0.1, end = 1) +
   scale_y_continuous(limits=c(0,100))
 
-
-
-
-
-
-
-### Diversité phylogénétique
+# Diversité phylogénétique
 phydiv3genes <- read_delim("phydiv3genes.csv", delim = ";", 
                            escape_double = FALSE, col_types = cols(Phymatellidae = col_number()), trim_ws = TRUE)
-
-phydiv3genesbis <- read_delim("~/Math qiime2 export/3genes/PD.csv", 
-                              delim = ";", escape_double = FALSE, trim_ws = TRUE)
-
-
 # head(phydiv3genes)
 phydiv3genes_long <- melt(phydiv3genesbis, id="gènes")
-
 # head(phydiv3genes_long)
 
 phy <- ggplot(phydiv3genes_long, aes(x=variable, y=value, color=gènes)) +
@@ -429,8 +507,7 @@ pdf <- phy + theme_bw() +
   scale_fill_grey(start = 0.1, end = 1)
 pdf
 
-
-### Combiner les plots
+### Combiner les trois indices ensemble
 library(ggpubr)
 
 figure1 <- ggarrange(obf, shf, pdf, 
@@ -439,8 +516,3 @@ figure1 <- ggarrange(obf, shf, pdf,
                       ncol = 3)
 figure1
 
-figure1br <- ggarrange(obf, shf, isf, pdf, 
-                     legend="right",
-                     common.legend = TRUE,
-                     ncol = 2, nrow = 2)
-figure1br
