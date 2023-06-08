@@ -1,0 +1,446 @@
+##########################################################################################################
+##################### PACIFIC DEEP SEA SPONGES MICROBIOME ################################################
+##########################################################################################################
+
+##########################################################################################################
+### STEP 0a : IMPORTING LIBRARIES ########################################################################
+##########################################################################################################
+# Installing qiime2R
+#https://forum.qiime2.org/t/tutorial-integrating-qiime2-and-r-for-data-visualization-and-analysis-using-qiime2r/4121
+if (!requireNamespace("devtools", quietly = TRUE)){install.packages("devtools")}
+devtools::install_github("jbisanz/qiime2R") # current version is 0.99.20
+
+library(ggplot2)
+library(qiime2R) 
+library(ape)
+library(plyr)
+library(vegan)
+library(RColorBrewer)
+library(reshape2)
+library(scales)
+library(data.table)
+library(microbiome)
+library(dplyr)
+library(phyloseq)
+library(DT) #for interactive tables
+
+##########################################################################################################
+### STEP 0b : CREATE PHYLOSEQ OBJECTS ####################################################################
+##########################################################################################################
+
+### V1-V2
+setwd("~/Math qiime2 export/V1V2")
+ps1 <- qza_to_phyloseq(features="filtered-table4bis.qza",
+                      tree= "C:/Users/mcastelin/Documents/Math qiime2 export/V1V2/rooted-tree-V1V2-filtered.qza",
+                      taxonomy="C:/Users/mcastelin/Documents/Math qiime2 export/V1V2/silva-138-V1V2-taxonomy-mars2023.qza",
+                      metadata = "C:/Users/mcastelin/Documents/Math qiime2 export/V1V2/metadatav5.csv")
+ps1
+
+### V3
+setwd("~/Math qiime2 export/V3")
+ps3 <- qza_to_phyloseq(features="filtered-table3bis.qza",
+                       tree= "C:/Users/mcastelin/Documents/Math qiime2 export/V3/rooted-tree-V3-filtered.qza",
+                       taxonomy="C:/Users/mcastelin/Documents/Math qiime2 export/V3/silva-138-V3-taxonomy.qza",
+                       metadata = "C:/Users/mcastelin/Documents/Math qiime2 export/V3/metadatav5.csv")
+ps3
+
+### V4-V5
+setwd("~/Math qiime2 export/V4V5")
+ps4 <- qza_to_phyloseq (features="filtered-table3bis.qza",
+                       tree= "C:/Users/mcastelin/Documents/Math qiime2 export/V4V5/rooted-tree-V4V5.qza",
+                       taxonomy="C:/Users/mcastelin/Documents/Math qiime2 export/V4V5/silva-138-V4V5-taxonomy.qza",
+                       metadata = "C:/Users/mcastelin/Documents/Math qiime2 export/V4V5/metadatav5.csv")
+ps4
+
+##########################################################################################################
+### STEP 0c : COLOR PALETTE ##############################################################################
+##########################################################################################################
+
+##### Phylums bactériens
+
+### V1-V2
+bactpalette1 <- c("#e41a1c","#ec83ba","#4a72a6","#974661","#48a462","#e1c62f","#d26b4b","#a35390","#ffb716","#ff7f00","#7e6e85","#fff02d","#5d995d","#b97b2a","#b75f49","#db728c","#3e8e93","#c28ea9")
+
+#Acidobacteriota = "#e41a1c"
+#Actinobacteriota = "#974661"
+#Bacteroidota = "#4a72a6"
+#Bdellovibrionota = "#3e8e93"
+#Chloroflexi = "#48a462" 
+#Deinococcota = "#5d995d"
+#Entotheonellaeota = "#7e6e85"
+#Gemmatimonadota = "#a35390"
+#Myxococcota = "#d26b4b"
+#NB1-j = "#ff7f00"
+#Nitrospirota = "#ffb716"
+#Patescibacteria = "#fff02d"
+#Planctomycetota = "#e1c62f"
+#Poribacteria = "#b97b2a"
+#Proteobacteria = "#b75f49"
+#SAR324_clade(Marine-group-B) = "#db728c" 
+#Spirochaetota = "#ec83ba"
+#Verrucomicrobiota = "#c28ea9"
+
+### V3
+bactpalette3 <- c("#e41a1c","#ec83ba","#4a72a6","#d26b4b","#a35390","#ffb716","#7e6e85","#b75f49","#00b159","#3e8e93","#c28ea9")
+
+#Acidobacteriota = "#e41a1c"
+#Actinobacteriota = "#ec83ba"
+#Bacteroidota = "#4a72a6"
+#Enthotheonellaeota = "#d26b4b"
+#Gemmatimonadota = "#a35390"
+#Myxococcota = "#ffb716"
+#Nitrospirota = "#7e6e85"
+#Proteobacteria = "#b75f49"
+#RCP2-54 = "#00b159"
+#Spirochaetota = "#3e8e93"
+#Verrucomicrobiota = "#c28ea9"
+
+### V4-V5
+bactpalette4 <- c("#e41a1c","#ec83ba","#4a72a6","#48a462","#E7B800","#FC4E07","#a35390","#5d995d","#b75f49","#3e8e93","#c28ea9")
+
+#Acidobacteriota = "#e41a1c"
+#Actinobacteriota = "#ec83ba"
+#Bacteroidota = "#4a72a6"
+#Chloroflexi = "#48a462" 
+#Crenarchaeota = "#E7B800"
+#Firmicutes = "#FC4E07"
+#Gemmatimonadota = "#a35390"
+#Planctomycetota = "#5d995d"
+#Proteobacteria = "#b75f49"
+#Spirochaetota = "#3e8e93"
+#Verrucomicrobiota = "#c28ea9"
+
+# Familles
+fampalette <- c("#6600cc", "#00CC00","#00AFBB", "#E7B800", "#FC4E07")
+
+#Ancorinidae = "#6600cc"
+#Geodiidae = "#00CC00"
+#Phymatellidae = "#00AFBB"
+#Tethyidae = "#E7B800"
+#Tetillidae = "#FC4E07"
+
+# Localités
+#locpalette <- c("#00b159","#ffc425","#990033","#00aedb","#663399","#f37735","#d11141","#4a72a6","#ec83ba")
+
+#Chesterfield = "#990033"
+#Lansdowne = "#d11141"
+#Nova = "#ec83ba"
+#Kelso = "#f37735" 
+#Capel = "#ffc425"
+#Ile des pins = "#663399"
+#Munida = "#4a72a6"
+#Crypthélia = "#00aedb"
+#Antigonia = "#00b159"
+
+#TYlocpalette <- c("#00b159","#ffc425","#990033","#663399","#f37735","#4a72a6")
+#TLlocpalette <- c("#ffc425","#990033","#f37735","#d11141")
+#ANlocpalette <- c("#ffc425","#990033","#00aedb","#663399","#d11141","#4a72a6")
+
+##########################################################################################################
+### STEP  : DIVERSITE ALPHA ##############################################################################
+##########################################################################################################
+library(phyloseq)
+
+### V1-V2
+# Observed
+ob11 <- plot_richness(ps1, x="family", measures="Observed") +
+  theme_bw() +
+  xlab('family')  + 
+  geom_boxplot(lwd=0.4, alpha=0.5, aes(fill=family)) + 
+  theme(axis.text.x = element_text(angle = 90, size = 10, colour = "black", vjust = 0.5, hjust = 1), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10)) +
+  stat_compare_means(method = "kruskal.test", label.y=45) +
+  theme(legend.position="none") +
+  scale_fill_manual(values=fampalette) + 
+  scale_shape_discrete(name = "famille")
+
+ob1 <- ob11 +theme(axis.text.x = element_blank()) + 
+  theme(axis.title.x = element_blank()) + 
+  theme (legend.title = element_text(size = 10, face = "bold"))
+ob1
+
+# Shannon
+sh11 <- plot_richness(ps1, x="family", measures="Shannon") + 
+  theme_bw() +
+  xlab('family')  + 
+  geom_boxplot(lwd=0.4, alpha=0.5, aes(fill=family)) + 
+  theme(axis.text.x = element_text(angle = 90, size = 10, colour = "black", vjust = 0.5, hjust = 1), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10)) +
+  stat_compare_means(method = "kruskal.test", label.y=2.5) +
+  scale_fill_manual(values=fampalette) + 
+  scale_shape_discrete(name = "famille")
+
+sh1 <- sh11 + theme(axis.text.x = element_blank()) + 
+  theme(axis.title.x = element_blank()) + 
+  theme (legend.title = element_text(size = 10, face = "bold"))
+sh1
+
+# Inv Simpson
+# is11 <- plot_richness(ps1, x="family", measures="InvSimpson") + theme_bw() +
+  xlab('family')  + 
+  geom_boxplot(lwd=0.6, alpha=0.5, aes(fill=family)) + 
+  theme(axis.text.x = element_text(angle = 90, size = 10, colour = "black", vjust = 0.5, hjust = 1), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10)) +
+  stat_compare_means(method = "kruskal.test", label.y=10) +
+  scale_fill_manual(values=fampalette) + 
+  scale_shape_discrete(name = "famille")
+
+# is1 <- is11 + theme(axis.text.x = element_blank()) + 
+  theme(axis.title.x = element_blank()) + 
+  theme (legend.title = element_text(size = 10, face = "bold"))
+# is1
+
+### V3
+setwd("~/Math qiime2 export/V3")
+
+# Observed
+ob33 <- plot_richness(ps3, x="family", measures="Observed") +
+  theme_bw() +
+  xlab('family')  + 
+  geom_boxplot(lwd=0.4, alpha=0.5, aes(fill=family)) + 
+  theme(axis.text.x = element_text(angle = 90, size = 10, colour = "black", vjust = 0.5, hjust = 1), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10)) +
+  stat_compare_means(method = "kruskal.test") +
+  scale_fill_manual(values=fampalette) + 
+  scale_shape_discrete(name = "famille")
+
+ob3 <- ob33 + theme(axis.text.x = element_blank()) + 
+  theme(axis.title.x = element_blank()) + 
+  theme (legend.title = element_text(size = 10, face = "bold"))
+ob3
+
+# Shannon
+sh33 <- plot_richness(ps3, x="family", measures="Shannon") + 
+  theme_bw() +
+  xlab('family')  + 
+  geom_boxplot(lwd=0.4, alpha=0.5, aes(fill=family)) + 
+  theme(axis.text.x = element_text(angle = 90, size = 10, colour = "black", vjust = 0.5, hjust = 1), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10)) +
+  stat_compare_means(method = "kruskal.test") +
+  scale_fill_manual(values=fampalette) + 
+  scale_shape_discrete(name = "famille")
+
+sh3 <- sh33 + theme(axis.text.x = element_blank()) + 
+  theme(axis.title.x = element_blank()) + 
+  theme (legend.title = element_text(size = 10, face = "bold"))
+sh3
+
+# is33 <- plot_richness(ps3, x="family", measures="InvSimpson") + 
+  theme_bw() +
+  xlab('family')  + 
+  geom_boxplot(lwd=0.6, alpha=0.5, aes(fill=family)) + 
+  theme(axis.text.x = element_text(angle = 90, size = 10, colour = "black", vjust = 0.5, hjust = 1), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10)) +
+  stat_compare_means(method = "kruskal.test") +
+  scale_fill_manual(values=fampalette) + 
+  scale_shape_discrete(name = "famille")
+
+# is3 <- is33 + theme(axis.text.x = element_blank()) + 
+  theme(axis.title.x = element_blank()) + 
+  theme (legend.title = element_text(size = 10, face = "bold"))
+# is3
+
+### V4-V5
+setwd("~/Math qiime2 export/V4V5")
+
+# Observed
+ob44 <- plot_richness(ps4, x="family", measures="Observed") +
+  theme_bw() +
+  xlab('family')  + 
+  geom_boxplot(lwd=0.4, alpha=0.5, aes(fill=family)) + 
+  theme(axis.text.x = element_text(angle = 90, size = 10, colour = "black", vjust = 0.5, hjust = 1), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10)) +
+  stat_compare_means(method = "kruskal.test") +
+  scale_fill_manual(values=fampalette) + 
+  scale_shape_discrete(name = "famille")
+
+ob4 <- ob44 + theme(axis.text.x = element_blank()) + 
+  theme(axis.title.x = element_blank()) + 
+  theme (legend.title = element_text(size = 10, face = "bold"))
+ob4
+
+# Shannon
+sh44 <- plot_richness(ps4, x="family", measures="Shannon") + 
+  theme_bw() +
+  xlab('family')  + 
+  geom_boxplot(lwd=0.4, alpha=0.5, aes(fill=family)) + 
+  theme(axis.text.x = element_text(angle = 90, size = 10, colour = "black", vjust = 0.5, hjust = 1), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10)) +
+  stat_compare_means(method = "kruskal.test") +
+  scale_fill_manual(values=fampalette) + 
+  scale_shape_discrete(name = "famille")
+
+sh4 <- sh44 + 
+  theme(axis.text.x = element_blank()) + 
+  theme(axis.title.x = element_blank()) + 
+  theme (legend.title = element_text(size = 10, face = "bold"))
+sh4
+
+# Inv Simpson
+# is44 <- plot_richness(ps4, x="family", measures="InvSimpson") + 
+  theme_bw() +
+  xlab('family')  + 
+  geom_boxplot(lwd=0.6, alpha=0.5, aes(fill=family)) + 
+  theme(axis.text.x = element_text(angle = 90, size = 10, colour = "black", vjust = 0.5, hjust = 1), 
+        axis.title.y = element_text(size = 12), legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(colour = "black", size = 10)) +
+  stat_compare_means(method = "kruskal.test") +
+  scale_fill_manual(values=fampalette) + 
+  scale_shape_discrete(name = "famille")
+
+# is4 <- is44 + theme(axis.text.x = element_blank()) + 
+  theme(axis.title.x = element_blank()) + 
+  theme (legend.title = element_text(size = 10, face = "bold"))
+# is4
+
+# Plot de tous les indices de diversité selon chaque gène.
+# library(ggpubr)
+# ggarrange(ob1, sh1, is1, ob3, sh3, is3, ob4, sh4, is4  + rremove("x.text"), 
+          labels = c("A", "B", "C", "D", "E", "F", "G", "H", "I"),
+          legend="right",
+          common.legend = TRUE,
+          ncol = 3, nrow = 3)
+
+# Enregistrer les données de chaque objet sous un format excel
+write.csv2(ob11$data, file = "observedV1V2.csv")
+write.csv2(ob33$data, file = "observedV3.csv")
+write.csv2(ob44$data, file = "observedV4V5.csv")
+write.csv2(sh11$data, file = "shannonV1V2.csv")
+write.csv2(sh33$data, file = "shannonV3.csv")
+write.csv2(sh44$data, file = "shannonV4V5.csv")
+# write.csv2(is11$data, file = "invsimpsonV1V2.csv")
+# write.csv2(is33$data, file = "invsimpsonV3.csv")
+# write.csv2(is44$data, file = "invsimpsonV4V5.csv")
+
+setwd("~/Math qiime2 export/3genes")
+library(readr)
+library(ggplot2)
+
+# Observed
+observed3genes <- read_delim("observed3genes.csv", delim = ";", escape_double = FALSE, trim_ws = TRUE)
+#View(observed3genes)
+observed3genes_long <- melt(observed3genes, id="gene")
+# head(observed3genes_long)
+
+obs <- ggplot(observed3genes_long, aes(x=variable, y=value, color=gene)) +
+  geom_boxplot(lwd=0.4, alpha=0.7, aes(fill=gene), color="black")
+obf <- obs + theme_bw() +
+  ggtitle("nombre d'ASV") +
+  theme(axis.title.x = element_blank()) + 
+  theme(axis.title.y = element_blank()) + 
+  theme(axis.text = element_text(face="bold", colour ="black", size = 11)) +
+  theme(legend.title = element_text(size = 15, face = "bold")) +
+  theme(legend.text = element_text(size = 12)) +
+  theme(legend.background = element_rect(size=0.5, linetype="solid", colour ="black")) + 
+  scale_fill_grey(start = 0.1, end = 1)
+obf
+
+# Shannon                      
+shannon3genesbis <- read_delim("~/Math qiime2 export/3genes/Shannon.csv", 
+                               delim = "\t", escape_double = FALSE, 
+                               col_types = cols(Ancorinidae = col_number(), Geodiidae = col_number(), Phymatellidae = col_number(),
+                               Tethyidae = col_number(), Tetillidae = col_number()), trim_ws = TRUE)
+# View(shannon3genesbis)
+shannon3genes_long <- melt(shannon3genesbis, id="gene")
+# head(shannon3genes_long)
+
+sha <- ggplot(shannon3genes_long, aes(x=variable, y=value, color=gene)) +
+  geom_boxplot(lwd=0.4, alpha=0.7, aes(fill=gene), color="black")
+shf <- sha + theme_bw() +
+  ggtitle("shannon") +
+  theme(axis.title.x = element_blank()) +
+  theme(axis.title.y = element_blank()) + 
+  theme(axis.text = element_text(face="bold", colour ="black", size = 11)) +
+  theme(legend.title = element_text(size = 15, face = "bold")) +
+  theme(legend.text = element_text(size = 12)) +
+  theme(legend.background = element_rect(size=0.5, linetype="solid", colour ="black")) + 
+  scale_fill_grey(start = 0.1, end = 1) +
+  theme(legend.position="none")
+shf
+
+## Invsimpson
+# invsimpson3genesbis <- read_delim("invsimpson3genesbis.csv",  delim = "\t", escape_double = FALSE, 
+                                  col_types = cols(Ancorinidae = col_number(),Geodiidae = col_number(),
+                                                   Phymatellidae = col_number(),Tethyidae = col_number(), 
+                                                   Tetillidae = col_number()), trim_ws = TRUE)
+# head(invsimpson3genes)
+# invsimpson3genes_long <- melt(invsimpson3genesbis, id="gene")
+# head(invsimpson3genes_long)
+
+# inv <- ggplot(invsimpson3genes_long, aes(x=variable, y=value, color=gene)) +
+  geom_boxplot(lwd=0.4, alpha=0.7, aes(fill=gene), color="black")
+# isf <- inv + theme_bw() +
+  ggtitle("invsimpson") +
+  theme(axis.title.x = element_blank()) + 
+  theme(axis.title.y = element_blank()) + 
+  theme(axis.text = element_text(face="bold", colour ="black")) +
+  theme(legend.title = element_text(size = 15, face = "bold")) +
+  theme(legend.text = element_text(size = 12)) +
+  theme(legend.background = element_rect(size=0.5, linetype="solid", colour ="black")) +
+  scale_fill_grey(start = 0.1, end = 1) +
+  scale_y_continuous(limits=c(0,100))
+
+
+
+
+
+
+
+### Diversité phylogénétique
+phydiv3genes <- read_delim("phydiv3genes.csv", delim = ";", 
+                           escape_double = FALSE, col_types = cols(Phymatellidae = col_number()), trim_ws = TRUE)
+
+phydiv3genesbis <- read_delim("~/Math qiime2 export/3genes/PD.csv", 
+                              delim = ";", escape_double = FALSE, trim_ws = TRUE)
+
+
+# head(phydiv3genes)
+phydiv3genes_long <- melt(phydiv3genesbis, id="gènes")
+
+# head(phydiv3genes_long)
+
+phy <- ggplot(phydiv3genes_long, aes(x=variable, y=value, color=gènes)) +
+  geom_boxplot(lwd=0.4, alpha=0.7, aes(fill=gene), color="black")
+pdf <- phy + theme_bw() +
+  ggtitle("diversité phylogénétique") +
+  theme(axis.title.x = element_blank()) + 
+  theme(axis.title.y = element_blank()) + 
+  theme(axis.text = element_text(face="bold", colour ="black", size = 11)) +
+  theme(legend.title = element_text(size = 15, face = "bold")) +
+  theme(legend.text = element_text(size = 12)) +
+  theme(legend.background = element_rect(size=0.5, linetype="solid", colour ="black")) + 
+  scale_fill_grey(start = 0.1, end = 1)
+pdf
+
+
+### Combiner les plots
+library(ggpubr)
+
+figure1 <- ggarrange(obf, shf, pdf, 
+                      legend="right",
+                      common.legend = TRUE,
+                      ncol = 3)
+figure1
+
+figure1br <- ggarrange(obf, shf, isf, pdf, 
+                     legend="right",
+                     common.legend = TRUE,
+                     ncol = 2, nrow = 2)
+figure1br
