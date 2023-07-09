@@ -516,3 +516,684 @@ figure1 <- ggarrange(obf, shf, pdf,
                       ncol = 3)
 figure1
 
+##########################################################################################################
+### STEP 2 : TAXA BARPLOT ################################################################################
+##########################################################################################################
+
+##### Samples with NA 
+
+### V1V2
+setwd("~/Math qiime2 export/V1V2")
+ps1 <- qza_to_phyloseq(features="filtered-table4bis.qza",
+                       tree= "C:/Users/mcastelin/Documents/Math qiime2 export/V1V2/rooted-tree-V1V2-filtered.qza",
+                       taxonomy="C:/Users/mcastelin/Documents/Math qiime2 export/V1V2/silva-138-V1V2-taxonomy-mars2023.qza",
+                       metadata = "C:/Users/mcastelin/Documents/Math qiime2 export/V1V2/metadatav5.csv")
+ps1
+
+sample1.x <- as.vector(c("craniella1428","craniella1603","craniella1613","craniella1725ad","craniella1725la","craniella1912ad","craniella1912la","craniella42","erylus1599","geodia1767","geodia1938","neoaulaxinia1424","neoaulaxinia1814","neoaulaxinia1870","stellata1656","stellata1720","stellata1770","stellata1821","stellata1968","stellata1703","tethya1418","tethya1420","tethya1421","tethya1422","tethya1423","tethya1711","tethya1728","tethya1845ad","tethya1845la","tethya1908ad","tethya1911","tethya1987"))
+
+ps.rel = transform_sample_counts(ps1, function(x) x/sum(x)*100)
+glom <- tax_glom(ps.rel, taxrank = 'Phylum', NArm = FALSE) # agglomerate taxa
+ps.melt <- psmelt(glom)
+ps.melt$Phylum <- as.character(ps.melt$Phylum) # change to character for easy-adjusted level
+
+ps.melt <- ps.melt %>%
+  group_by(sample.name, Phylum) %>%
+  mutate(median=median(Abundance))
+
+keep <- unique(ps.melt$Phylum[ps.melt$median > 0.000001]) # select group median > 1
+ps.melt$Phylum[!(ps.melt$Phylum %in% keep)] <- "< 1%"
+
+ps.melt_sum <- ps.melt %>% # to get the same rows together
+  group_by(Sample,sample.name,Phylum) %>%
+  summarise(Abundance=sum(Abundance))
+
+taxbpna1 <- ggplot(ps.melt_sum, aes(x = sample.name, y = Abundance, fill = Phylum)) + 
+    geom_bar(stat = "identity", aes(fill=Phylum)) + 
+    labs(x="famille", y="Abondance relative (%)") +
+    ggtitle("V1V2 - abondance relative (en %)") +
+    scale_fill_manual(values=bactpalette1) +
+    theme_classic() + 
+    theme(axis.text = element_text(size = 13, colour="black", face="bold")) +
+    theme(axis.title = element_blank()) +
+    theme(legend.title = element_text(size = 17, face = "bold")) +
+    theme(legend.text = element_text(size = 15)) +
+    theme(legend.position="right") +
+    theme(legend.background = element_rect(size=0.5, linetype="solid", colour ="black")) + 
+    theme(strip.background = element_blank(),
+        axis.text.x.bottom = element_text(vjust=0.25, angle = -90)) 
+
+taxbpna1
+
+### V3
+setwd("~/Math qiime2 export/V3")
+ps3 <- qza_to_phyloseq(features="filtered-table3bis.qza",
+                       tree= "C:/Users/mcastelin/Documents/Math qiime2 export/V3/rooted-tree-V3-filtered.qza",
+                       taxonomy="C:/Users/mcastelin/Documents/Math qiime2 export/V3/silva-138-V3-taxonomy.qza",
+                       metadata = "C:/Users/mcastelin/Documents/Math qiime2 export/V3/metadatav5.csv")
+ps3
+
+sample3.x <- as.vector(c("craniella1428","craniella1603","craniella1613","craniella1725ad","craniella1725la","craniella1912ad","craniella1912la","craniella42","erylus1599","geodia1767","geodia1938","neoaulaxinia1424","neoaulaxinia1814","neoaulaxinia1870","stellata1656","stellata1720","stellata1770","stellata1821","stellata1968","stellata1703","tethya1418","tethya1419","tethya1420","tethya1422","tethya1423","tethya1711","tethya1728","tethya1845ad","tethya1908ad","tethya1987"))
+
+ps.rel = transform_sample_counts(ps3, function(x) x/sum(x)*100)
+glom <- tax_glom(ps.rel, taxrank = 'Phylum', NArm = FALSE) # agglomerate taxa
+ps.melt <- psmelt(glom)
+ps.melt$Phylum <- as.character(ps.melt$Phylum) # change to character for easy-adjusted level
+
+ps.melt <- ps.melt %>%
+  group_by(sample.name, Phylum) %>%
+  mutate(median=median(Abundance))
+
+keep <- unique(ps.melt$Phylum[ps.melt$median > 0.000001]) # select group median > 1
+ps.melt$Phylum[!(ps.melt$Phylum %in% keep)] <- "< 1%"
+
+ps.melt_sum <- ps.melt %>% # to get the same rows together
+  group_by(Sample,sample.name,Phylum) %>%
+  summarise(Abundance=sum(Abundance))
+
+taxbpna3 <- ggplot(ps.melt_sum, aes(x = sample.name, y = Abundance, fill = Phylum)) + 
+  geom_bar(stat = "identity", aes(fill=Phylum)) + 
+  labs(x="famille", y="Abondance relative (%)") +
+  ggtitle("V3 - abondance relative (en %)") +
+  scale_fill_manual(values=bactpalette3) +
+  theme_classic() + 
+  theme(axis.text = element_text(size = 13, colour="black", face="bold")) +
+  theme(axis.title = element_blank()) +
+  theme(legend.title = element_text(size = 17, face = "bold")) +
+  theme(legend.text = element_text(size = 15)) +
+  theme(legend.position="right") +
+  theme(legend.background = element_rect(size=0.5, linetype="solid", colour ="black")) + 
+  theme(strip.background = element_blank(),
+        axis.text.x.bottom = element_text(vjust=0.25, angle = -90))
+
+taxbpna3
+
+### V4V5
+setwd("~/Math qiime2 export/V4V5")
+ps4 <- qza_to_phyloseq (features="filtered-table3bis.qza",
+                        tree= "C:/Users/mcastelin/Documents/Math qiime2 export/V4V5/rooted-tree-V4V5.qza",
+                        taxonomy="C:/Users/mcastelin/Documents/Math qiime2 export/V4V5/silva-138-V4V5-taxonomy.qza",
+                        metadata = "C:/Users/mcastelin/Documents/Math qiime2 export/V4V5/metadatav5.csv")
+ps4
+
+
+sample4.x <- as.vector(c("craniella1428","craniella1603","craniella1613","craniella1725ad","craniella1725la","craniella1912ad","craniella1912la","craniella42","erylus1599","geodia1767","geodia1938","neoaulaxinia1424","neoaulaxinia1814","neoaulaxinia1870","stellata1656","stellata1720","stellata1770","stellata1821","stellata1968","stellata1703","tethya1418","tethya1419","tethya1420","tethya1421","tethya1422","tethya1423","tethya1711","tethya1728","tethya1845ad","tethya1845la","tethya1908ad","tethya1911","tethya1987"))
+
+ps.rel = transform_sample_counts(ps4, function(x) x/sum(x)*100)
+glom <- tax_glom(ps.rel, taxrank = 'Phylum', NArm = FALSE) # agglomerate taxa
+ps.melt <- psmelt(glom)
+ps.melt$Phylum <- as.character(ps.melt$Phylum) # change to character for easy-adjusted level
+
+ps.melt <- ps.melt %>%
+  group_by(sample.name, Phylum) %>%
+  mutate(median=median(Abundance))
+
+keep <- unique(ps.melt$Phylum[ps.melt$median > 0.000001]) # select group median > 1
+ps.melt$Phylum[!(ps.melt$Phylum %in% keep)] <- "< 1%"
+
+ps.melt_sum <- ps.melt %>% # to get the same rows together
+  group_by(Sample,sample.name,Phylum) %>%
+  summarise(Abundance=sum(Abundance))
+
+taxbpna4 <- ggplot(ps.melt_sum, aes(x = sample.name, y = Abundance, fill = Phylum)) + 
+  geom_bar(stat = "identity", aes(fill=Phylum)) + 
+  labs(x="famille", y="Abondance relative (%)") +
+  ggtitle("V4V5 - abondance relative (en %)") +
+  scale_fill_manual(values=bactpalette4) +
+  theme_classic() + 
+  theme(axis.text = element_text(size = 13, colour="black", face="bold")) +
+  theme(axis.title = element_blank()) +
+  theme(legend.title = element_text(size = 17, face = "bold")) +
+  theme(legend.text = element_text(size = 15)) +
+  theme(legend.position="right") +
+  theme(legend.background = element_rect(size=0.5, linetype="solid", colour ="black")) + 
+  theme(strip.background = element_blank(),
+        axis.text.x.bottom = element_text(vjust=0.25, angle = -90)) + 
+  theme(legend.position="none")
+
+taxbpna4
+
+# compiler les trois taxa barplot en une unique figure
+library(ggpubr)
+ggarrange(taxbpna1, taxbpna3, taxbpna4 + rremove("x.text"), 
+          labels = c("A", "B", "C"),
+          ncol = 3)
+
+
+##### Samples without NA
+
+### V1V2
+sample1.x <- as.vector(c("craniella1428","craniella1603","craniella1613","craniella1725ad","craniella1725la","craniella1912ad","craniella1912la","craniella42","erylus1599","geodia1767","geodia1938","neoaulaxinia1424","neoaulaxinia1814","neoaulaxinia1870","stellata1656","stellata1720","stellata1770","stellata1821","stellata1968","stellata1703","tethya1418","tethya1420","tethya1421","tethya1422","tethya1423","tethya1711","tethya1728","tethya1845ad","tethya1845la","tethya1908ad","tethya1911","tethya1987"))
+
+setwd("~/Math qiime2 export/V1V2")
+ps1 <- qza_to_phyloseq(features="filtered-table4bis.qza",
+                       tree= "C:/Users/mcastelin/Documents/Math qiime2 export/V1V2/rooted-tree-V1V2-filtered.qza",
+                       taxonomy="C:/Users/mcastelin/Documents/Math qiime2 export/V1V2/silva-138-V1V2-taxonomy-mars2023.qza",
+                       metadata = "C:/Users/mcastelin/Documents/Math qiime2 export/V1V2/metadatav5.csv")
+ps1
+
+ps.merged.nam = merge_samples(ps1, "sample.name")
+ps.merged.nam
+proteo <- subset_taxa(ps.merged.nam, Phylum != "NA")
+proteo
+
+ps.rel = transform_sample_counts(proteo, function(x) x/sum(x)*100)
+
+glom <- tax_glom(ps.rel, taxrank = 'Phylum', NArm = FALSE) # agglomerate taxa
+ps.melt <- psmelt(glom)
+
+ps.melt$Phylum <- as.character(ps.melt$Phylum) # change to character for easy-adjusted level
+
+ps.melt <- ps.melt %>%
+  group_by(sample.name, Phylum) %>%
+  mutate(median=median(Abundance))
+
+keep <- unique(ps.melt$Phylum[ps.melt$median > 0.000001]) # select group median > 1
+ps.melt$Phylum[!(ps.melt$Phylum %in% keep)] <- "< 1%"
+
+ps1.melt_sum <- ps.melt %>% # to get the same rows together
+  group_by(Sample,sample.name,Phylum) %>%
+  summarise(Abundance=sum(Abundance))
+
+taxbpwna1 <- ggplot(ps1.melt_sum, aes(x = sample.name , y = Abundance, fill = Phylum)) + 
+  geom_bar(stat = "identity", aes(fill=Phylum)) + 
+  labs(x="famille", y="Abondance relative (%)") +
+  ggtitle("V1V2 - abondance relative (en %)") +
+  scale_fill_manual(values=bactpalette1) +
+  scale_x_continuous(breaks=seq(1,32,1),labels=sample1.x) +
+  theme_classic() + 
+  theme(axis.text = element_text(size = 13, colour="black", face="bold")) +
+  theme(axis.title = element_blank()) +
+  theme(legend.title = element_text(size = 17, face = "bold")) +
+  theme(legend.text = element_text(size = 15)) +
+  theme(legend.position="right") +
+  theme(legend.background = element_rect(size=0.5, linetype="solid", colour ="black")) + 
+  theme(strip.background = element_blank(),
+        axis.text.x.bottom = element_text(vjust=0.25, angle = -90))
+
+taxbpwna1
+
+### V3
+setwd("~/Math qiime2 export/V3")
+ps3 <- qza_to_phyloseq(features="filtered-table3bis.qza",
+                       tree= "C:/Users/mcastelin/Documents/Math qiime2 export/V3/rooted-tree-V3-filtered.qza",
+                       taxonomy="C:/Users/mcastelin/Documents/Math qiime2 export/V3/silva-138-V3-taxonomy.qza",
+                       metadata = "C:/Users/mcastelin/Documents/Math qiime2 export/V3/metadatav5.csv")
+ps3
+
+sample3.x <- as.vector(c("craniella1428","craniella1603","craniella1613","craniella1725ad","craniella1725la","craniella1912ad","craniella1912la","craniella42","erylus1599","geodia1767","geodia1938","neoaulaxinia1424","neoaulaxinia1814","neoaulaxinia1870","stellata1656","stellata1720","stellata1770","stellata1821","stellata1968","stellata1703","tethya1418","tethya1419","tethya1420","tethya1422","tethya1423","tethya1711","tethya1728","tethya1845ad","tethya1908ad","tethya1987"))
+
+ps3.merged.fam = merge_samples(ps3, "sample.name")
+ps3.merged.fam
+
+proteo3 <- subset_taxa(ps3.merged.fam, Phylum != "NA")
+proteo3
+
+ps3.rel.fam = transform_sample_counts(proteo3, function(x) x/sum(x)*100)
+glom3.fam <- tax_glom(ps3.rel.fam, taxrank = 'Phylum', NArm = FALSE)
+ps3.melt <- psmelt(glom3.fam)
+ps3.melt$Phylum <- as.character(ps3.melt$Phylum)
+ps3.melt <- ps3.melt %>%
+  group_by(sample.name, Phylum) %>%
+  mutate(median=median(Abundance))
+keep <- unique(ps3.melt$Phylum[ps3.melt$median > 0.00001]) # select group median > 1
+ps3.melt$Phylum[!(ps3.melt$Phylum %in% keep)] <- "< 1%"
+print(keep)
+
+ps3.melt_sum <- ps3.melt %>% # to get the same rows together
+  group_by(Sample,sample.name,Phylum) %>%
+  summarise(Abundance=sum(Abundance))
+
+taxbpwna3 <- ggplot(ps3.melt_sum, aes(x = sample.name , y = Abundance, fill = Phylum)) + 
+  geom_bar(stat = "identity", aes(fill=Phylum)) +
+  labs(x="famille", y="Abondance relative (%)") +
+  ggtitle("V3 - abondance relative (en %)") +
+  scale_fill_manual(values=bactpalette3) + 
+  scale_x_continuous(breaks=seq(1,30,1),labels=sample3.x) +
+  theme_classic() + 
+  theme(axis.text = element_text(size = 13, colour="black", face="bold")) +
+  theme(axis.title = element_blank()) +
+  theme(legend.title = element_text(size = 13, face = "bold")) +
+  theme(legend.text = element_text(size = 10)) +
+  theme(legend.background = element_rect(size=0.5, linetype="solid", colour ="black")) + 
+  theme(strip.background = element_blank(),
+        axis.text.x.bottom = element_text(vjust=0.25, angle = -90))
+
+taxbpwna3
+
+### V4V5
+setwd("~/Math qiime2 export/V4V5")
+ps4 <- qza_to_phyloseq (features="filtered-table3bis.qza",
+                        tree= "C:/Users/mcastelin/Documents/Math qiime2 export/V4V5/rooted-tree-V4V5.qza",
+                        taxonomy="C:/Users/mcastelin/Documents/Math qiime2 export/V4V5/silva-138-V4V5-taxonomy.qza",
+                        metadata = "C:/Users/mcastelin/Documents/Math qiime2 export/V4V5/metadatav5.csv")
+ps4
+
+sample4.x <- as.vector(c("craniella1428","craniella1603","craniella1613","craniella1725ad","craniella1725la","craniella1912ad","craniella1912la","craniella42","erylus1599","geodia1767","geodia1938","neoaulaxinia1424","neoaulaxinia1814","neoaulaxinia1870","stellata1656","stellata1720","stellata1770","stellata1821","stellata1968","stellata1703","tethya1418","tethya1419","tethya1420","tethya1421","tethya1422","tethya1423","tethya1711","tethya1728","tethya1845ad","tethya1845la","tethya1908ad","tethya1911","tethya1987"))
+
+ps4.merged.fam = merge_samples(ps4, "sample.name")
+ps4.merged.fam
+
+proteo4 <- subset_taxa(ps4.merged.fam, Phylum != "NA")
+proteo4
+
+ps4.rel.fam = transform_sample_counts(proteo4, function(x) x/sum(x)*100)
+glom4.fam <- tax_glom(ps4.rel.fam, taxrank = 'Phylum', NArm = FALSE)
+ps4.melt <- psmelt(glom4.fam)
+ps4.melt$Phylum <- as.character(ps4.melt$Phylum)
+ps4.melt <- ps4.melt %>%
+  group_by(sample.name, Phylum) %>%
+  mutate(median=median(Abundance))
+keep <- unique(ps4.melt$Phylum[ps4.melt$median > 0.00001]) # select group median > 1
+ps4.melt$Phylum[!(ps4.melt$Phylum %in% keep)] <- "< 1%"
+print(keep)
+
+ps4.melt_sum <- ps4.melt %>% # to get the same rows together
+  group_by(Sample,sample.name,Phylum) %>%
+  summarise(Abundance=sum(Abundance))
+
+taxbpwna4 <- ggplot(ps4.melt_sum, aes(x = sample.name , y = Abundance, fill = Phylum)) + 
+  geom_bar(stat = "identity", aes(fill=Phylum)) +
+  labs(x="famille", y="Abondance relative (%)") +
+  ggtitle("V4V5 - abondance relative (en %)") +
+  scale_fill_manual(values=bactpalette4) +
+  scale_x_continuous(breaks=seq(1,33,1),labels=sample4.x) +
+  theme_classic() + 
+  theme(axis.text = element_text(size = 13, colour="black", face="bold")) +
+  theme(axis.title = element_blank()) +
+  theme(legend.title = element_text(size = 17, face = "bold")) +
+  theme(legend.text = element_text(size = 15)) +
+  theme(legend.background = element_rect(size=0.5, linetype="solid", colour ="black")) + 
+  theme(strip.background = element_blank(),
+        axis.text.x.bottom = element_text(vjust=0.25, angle = -90))
+
+taxbpwna4
+
+# Combiner les plots
+library(ggpubr)
+figure2 <- ggarrange(taxbpwna1, taxbpwna3, taxbpwna4, 
+                     labels = c("A", "B", "C"),
+                     ncol = 2, nrow = 2)
+figure2
+
+
+##########################################################################################################
+### STEP 3 : METACODER ###################################################################################
+##########################################################################################################
+
+##########################################################################################################
+### STEP 3a : Arbre taxonomiques microbiens ##############################################################
+##########################################################################################################
+install.packages ("BiocManager")
+install.packages("metacoder")
+install.packages("devtools")
+devtools::install_github("grunwaldlab/metacoder")
+install.packages("tidyverse")
+library(readxl)
+library(metacoder)
+library(tidyverse)
+
+### V1V2
+setwd("~/Math qiime2 export/V1V2")
+asv_data <- read_excel("feature-table-V1V2-filtered-mat.xlsx")
+#View(asv_data)
+
+metadata <- read_excel("metadatav5.xlsx")
+#View(metadatav5)
+obj <- parse_tax_data(asv_data,
+                      class_cols="taxonomy",
+                      class_sep=";")
+# print(obj)
+print(obj$data$tax_data) 
+obj1 <- parse_tax_data(asv_data,
+                       class_cols = "taxonomy",
+                       class_sep=";",
+                       class_regex = "^([a-z]{0,1})_{0,2}(.*)$",
+                       class_key = c("tax_rank"= "taxon_rank", "name" = "taxon_name")) # ajout de la taxonomie à la table jusqu'au rang 'Classe'
+print(obj1)
+
+obj1$data$tax_abund <- calc_taxon_abund(obj1,"tax_data")
+obj1$data$tax_abund$total <- rowSums(obj1$data$tax_abund[, -1]) # ajout de tax_abund
+print(obj1)
+
+obj1$data$n_samples <- calc_n_samples # ajout de n_samples
+
+obj1 %>% 
+  filter_taxa(taxon_ranks == "o", supertaxa = TRUE) %>% # subset to the order rank
+  heat_tree(node_label = gsub(pattern = "\\[|\\]", replacement = "", taxon_names),
+            node_size = n_obs,
+            node_color = total,
+            node_size_axis_label = "ASV",
+            node_color_axis_label = "reads",
+            layout = "davidson-harel", initial_layout = "reingold-tilford")
+
+# taxon rank "order"
+library(metacoder)
+obj1 %>% 
+  filter_taxa(taxon_ranks == "o", supertaxa = TRUE) %>% # subset to the order rank
+  heat_tree(node_label = gsub(pattern = "\\[|\\]", replacement = "", taxon_names),
+            node_size = n_obs,
+            node_color = total,
+            node_size_axis_label = "ASV",
+            node_color_axis_label = "reads",
+            layout = "davidson-harel", initial_layout = "reingold-tilford")
+
+### V3 
+setwd("~/Math qiime2 export/V3")
+asv_data <- read_excel("feature-table-V3-filtered-mat.xlsx")
+# View(asv_data)
+
+metadata <- read_excel("metadatav5.xlsx")
+# View(metadatav5)
+obj <- parse_tax_data(asv_data,
+                      class_cols="taxonomy",
+                      class_sep=";")
+print(obj)
+print(obj$data$tax_data)
+obj1 <- parse_tax_data(asv_data,
+                       class_cols = "taxonomy",
+                       class_sep=";",
+                       class_regex = "^([a-z]{0,1})_{0,2}(.*)$",
+                       class_key = c("tax_rank"= "taxon_rank", "name" = "taxon_name")) # ajout de la taxonomie à la table jusqu'au rang 'Classe'
+print(obj1)
+
+obj1$data$tax_abund <- calc_taxon_abund(obj1,"tax_data")
+obj1$data$tax_abund$total <- rowSums(obj1$data$tax_abund[, -1]) # ajout de tax_abund
+print(obj1)
+
+obj1$data$n_samples <- calc_n_samples #ajout de n_samples
+
+## taxon rank "order"
+library(metacoder)
+obj1 %>% 
+  
+  filter_taxa(taxon_ranks == "o", supertaxa = TRUE) %>% # subset to the order rank
+  heat_tree(node_label = gsub(pattern = "\\[|\\]", replacement = "", taxon_names),
+            node_size = n_obs,
+            node_color = total,
+            node_size_axis_label = "ASV",
+            node_color_axis_label = "reads",
+            layout = "davidson-harel", initial_layout = "reingold-tilford")
+
+### V4V5
+setwd("~/Math qiime2 export/V4V5")
+asv_data <- read_excel("feature-table-V4V5-filtered-mat.xlsx")
+# View(asv_data)
+
+metadata <- read_excel("metadatav5.xlsx")
+# View(metadatav5)
+obj <- parse_tax_data(asv_data,
+                      class_cols="taxonomy",
+                      class_sep=";")
+print(obj)
+print(obj$data$tax_data) # regarder la table
+obj1 <- parse_tax_data(asv_data,
+                       class_cols = "taxonomy",
+                       class_sep=";",
+                       class_regex = "^([a-z]{0,1})_{0,2}(.*)$",
+                       class_key = c("tax_rank"= "taxon_rank", "name" = "taxon_name")) # ajout de la taxonomie à la table jusqu'au rang 'Classe'
+print(obj1)
+
+obj1$data$tax_abund <- calc_taxon_abund(obj1,"tax_data")
+obj1$data$tax_abund$total <- rowSums(obj1$data$tax_abund[, -1]) # ajout de tax_abund
+print(obj1)
+
+obj1$data$n_samples <- calc_n_samples #ajout de n_samples
+
+# taxon rank: "order"
+library(metacoder)
+obj1 %>% 
+  filter_taxa(taxon_ranks == "o", supertaxa = TRUE) %>% # subset to the order rank
+  heat_tree(node_label = gsub(pattern = "\\[|\\]", replacement = "", taxon_names),
+            node_size = n_obs,
+            node_color = total,
+            node_size_axis_label = "ASV",
+            node_color_axis_label = "reads",
+            layout = "davidson-harel", initial_layout = "reingold-tilford")
+
+##########################################################################################################
+### STEP 3b : Heat Tree matrix ###########################################################################
+##########################################################################################################
+library(tidyverse)
+library(readxl)
+library(metacoder)
+
+Warning : l'asv_data est modifié en ne sélectionnant que les 3 familles (Ancorinidae, Tethyidae, et Tetillidae) présentant le plus d'échantillons d'éponges. 
+
+### V1V2
+setwd("~/Math qiime2 export/V1V2")
+
+asv_data_fam <- read_excel("feature-table-V1V2-filtered-3fam.xlsx")
+View(asv_data_fam)
+metadata_fam <- read_excel("metadatav5-3fam.xlsx")
+View(metadata_fam)
+obj_fam <- parse_tax_data(asv_data_fam,
+                          class_cols = "taxonomy",
+                          class_sep = ";")
+print(obj_fam)
+print(obj_fam$data$tax_data)
+obj_fam <- parse_tax_data(asv_data_fam,
+                          class_cols = "taxonomy",
+                          class_sep = ";",
+                          class_regex = "^([a-z]{0,1})_{0,2}(.*)$",
+                          class_key = c("tax_rank" = "taxon_rank", "name" = "taxon_name"))
+print(obj_fam)
+
+### # Plotting read depth:
+# To plot read depth, you first need to add up the number of reads per taxon.
+obj_fam$data$tax_abund <- calc_taxon_abund(obj_fam, "tax_data")
+obj_fam$data$tax_abund$total <- rowSums(obj_fam$data$tax_abund[, -1])
+print(obj_fam)
+
+obj_fam$data$n_samples <- calc_n_samples(obj_fam, data = "tax_abund")
+
+#### Dans Objet, à ce stade j'ai bien tax_data, Class_data, et tax_abund 
+
+##### Tax Plot
+obj_fam %>% 
+  filter_taxa(taxon_ranks == "o", supertaxa = TRUE) %>% # subset to the order rank
+  heat_tree(node_label = gsub(pattern = "\\[|\\]", replacement = "", taxon_names),
+            node_size = n_obs,
+            node_color = total,
+            node_size_axis_label = "nb of ASVs",
+            node_color_axis_label = "nb of reads",
+            layout = "davidson-harel", initial_layout = "reingold-tilford")
+
+#### Alpha diversity
+library(vegan)
+metadata_fam$inv_simp <- diversity(obj_fam$data$tax_data[, metadata_fam$`sample-id`],
+                                   index = "invsimpson",
+                                   MARGIN = 2) # What orientation the matrix is in
+print(metadata_fam$inv_simp)
+
+library(ggplot2)
+ggplot(metadata_fam, aes(x = family, y = inv_simp)) +
+  geom_boxplot()
+
+print(obj_fam)
+#### Getting per-taxon information (calculating le tax_occ)
+obj_fam$data$tax_occ <- calc_n_samples(obj_fam, "tax_abund")
+print(obj_fam)
+
+### Comparing any nb of treatments
+obj_fam$data$diff_table <- compare_groups(obj_fam, data = "tax_abund",
+                                          cols = metadata_fam$`sample-id`, # What columns of sample data to use
+                                          groups = metadata_fam$family) # What category each sample is assigned to
+print(obj_fam$data$diff_table)
+
+# Plot the Heat-Tree Matrix
+set.seed(1)
+heat_tree_matrix(obj_fam,
+                 data = "diff_table",
+                 node_size = n_obs, # n_obs is a function that calculates, in this case, the number of OTUs per taxon
+                 node_label = taxon_names,
+                 node_color = log2_median_ratio, # A column from `obj$data$diff_table`
+                 node_color_range = diverging_palette(), # The built-in fampalette for diverging data
+                 node_color_trans = "linear", # The default is scaled by circle area
+                 node_color_interval = c(-3, 3), # The range of `log2_median_ratio` to display
+                 edge_color_interval = c(-3, 3), # The range of `log2_median_ratio` to display
+                 node_size_axis_label = "ASV",
+                 node_color_axis_label = "",
+                 layout = "davidson-harel", # The primary layout algorithm
+                 initial_layout = "reingold-tilford") # The layout algorithm that initializes node locations
+
+### V3
+setwd("~/Math qiime2 export/V3")
+
+asv_data_fam <- read_excel("feature-table-V3-filtered-mat.xlsx")
+View(asv_data_fam)
+metadata_fam <- read_excel("metadatav5-3fam.xlsx")
+View(metadata_fam)
+obj_fam <- parse_tax_data(asv_data_fam,
+                          class_cols = "taxonomy",
+                          class_sep = ";")
+print(obj_fam)
+print(obj_fam$data$tax_data)
+obj_fam <- parse_tax_data(asv_data_fam,
+                          class_cols = "taxonomy",
+                          class_sep = ";",
+                          class_regex = "^([a-z]{0,1})_{0,2}(.*)$",
+                          class_key = c("tax_rank" = "taxon_rank", "name" = "taxon_name"))
+print(obj_fam)
+
+# Plotting read depth:
+# To plot read depth, you first need to add up the number of reads per taxon.
+obj_fam$data$tax_abund <- calc_taxon_abund(obj_fam, "tax_data")
+
+obj_fam$data$tax_abund$total <- rowSums(obj_fam$data$tax_abund[, -1])
+print(obj_fam)
+
+obj_fam$data$n_samples <- calc_n_samples(obj_fam, data = "tax_abund")
+
+# Dans Objet, à ce stade j'ai bien tax_data, Class_data, et tax_abund 
+
+# Tax Plot
+obj_fam %>% 
+  
+  filter_taxa(taxon_ranks == "o", supertaxa = TRUE) %>% # subset to the order rank
+  heat_tree(node_label = gsub(pattern = "\\[|\\]", replacement = "", taxon_names),
+            node_size = n_obs,
+            node_color = total,
+            node_size_axis_label = "nombre d'ASVs",
+            node_color_axis_label = "nombre de lectures",
+            layout = "davidson-harel", initial_layout = "reingold-tilford")
+
+# Alpha diversity
+library(vegan)
+metadata_fam$inv_simp <- diversity(obj_fam$data$tax_data[, metadata_fam$`sample-id`],
+                                   index = "invsimpson",
+                                   MARGIN = 2) # What orientation the matrix is in
+print(metadata_fam$inv_simp)
+
+library(ggplot2)
+ggplot(metadata_fam, aes(x = family, y = inv_simp)) +
+  geom_boxplot()
+
+print(obj_fam)
+#### Getting per-taxon information (calculating le tax_occ)
+obj_fam$data$tax_occ <- calc_n_samples(obj_fam, "tax_abund")
+print(obj_fam)
+
+# Comparing any nb of treatments
+obj_fam$data$diff_table <- compare_groups(obj_fam, data = "tax_abund",
+                                          cols = metadata_fam$`sample-id`, # What columns of sample data to use
+                                          groups = metadata_fam$family) # What category each sample is assigned to
+print(obj_fam$data$diff_table)
+
+# Plot the Heat-Tree Matrix
+set.seed(1)
+heat_tree_matrix(obj_fam,
+                 data = "diff_table",
+                 node_size = n_obs, # n_obs is a function that calculates, in this case, the number of OTUs per taxon
+                 node_label = taxon_names,
+                 node_color = log2_median_ratio, # A column from `obj$data$diff_table`
+                 node_color_range = diverging_palette(), # The built-in fampalette for diverging data
+                 node_color_trans = "linear", # The default is scaled by circle area
+                 node_color_interval = c(-3, 3), # The range of `log2_median_ratio` to display
+                 edge_color_interval = c(-3, 3), # The range of `log2_median_ratio` to display
+                 node_size_axis_label = "ASV",
+                 node_color_axis_label = "",
+                 layout = "davidson-harel", # The primary layout algorithm
+                 initial_layout = "reingold-tilford") # The layout algorithm that initializes node locations
+
+### V4V5
+setwd("~/Math qiime2 export/V4V5")
+
+asv_data_fam <- read_excel("feature-table-V4V5-filtered-3fam.xlsx")
+View(asv_data_fam)
+metadata_fam <- read_excel("metadatav5-3fam.xlsx")
+View(metadata_fam)
+obj_fam <- parse_tax_data(asv_data_fam,
+                          class_cols = "taxonomy",
+                          class_sep = ";")
+print(obj_fam)
+print(obj_fam$data$tax_data)
+obj_fam <- parse_tax_data(asv_data_fam,
+                          class_cols = "taxonomy",
+                          class_sep = ";",
+                          class_regex = "^([a-z]{0,1})_{0,2}(.*)$",
+                          class_key = c("tax_rank" = "taxon_rank", "name" = "taxon_name"))
+print(obj_fam)
+
+# Plotting read depth:
+# To plot read depth, you first need to add up the number of reads per taxon.
+obj_fam$data$tax_abund <- calc_taxon_abund(obj_fam, "tax_data")
+
+obj_fam$data$tax_abund$total <- rowSums(obj_fam$data$tax_abund[, -1])
+print(obj_fam)
+
+obj_fam$data$n_samples <- calc_n_samples(obj_fam, data = "tax_abund")
+
+# Dans Objet, à ce stade j'ai bien tax_data, Class_data, et tax_abund 
+
+# Tax Plot
+obj_fam %>% 
+  
+  filter_taxa(taxon_ranks == "o", supertaxa = TRUE) %>% # subset to the order rank
+  heat_tree(node_label = gsub(pattern = "\\[|\\]", replacement = "", taxon_names),
+            node_size = n_obs,
+            node_color = total,
+            node_size_axis_label = "nombre d'ASVs",
+            node_color_axis_label = "nombre de lectures",
+            layout = "davidson-harel", initial_layout = "reingold-tilford")
+
+# Alpha diversity
+library(vegan)
+metadata_fam$inv_simp <- diversity(obj_fam$data$tax_data[, metadata_fam$`sample-id`],
+                                   index = "invsimpson",
+                                   MARGIN = 2) # What orientation the matrix is in
+print(metadata_fam$inv_simp)
+
+library(ggplot2)
+ggplot(metadata_fam, aes(x = family, y = inv_simp)) +
+  geom_boxplot()
+
+print(obj_fam)
+# Getting per-taxon information (calculating le tax_occ)
+obj_fam$data$tax_occ <- calc_n_samples(obj_fam, "tax_abund")
+print(obj_fam)
+
+# Comparing any nb of treatments
+obj_fam$data$diff_table <- compare_groups(obj_fam, data = "tax_abund",
+                                          cols = metadata_fam$`sample-id`, # What columns of sample data to use
+                                          groups = metadata_fam$family) # What category each sample is assigned to
+print(obj_fam$data$diff_table)
+
+# Plot the Heat-Tree Matrix
+set.seed(1)
+heat_tree_matrix(obj_fam,
+                 data = "diff_table",
+                 node_size = n_obs, # n_obs is a function that calculates, in this case, the number of OTUs per taxon
+                 node_label = taxon_names,
+                 node_color = log2_median_ratio, # A column from `obj$data$diff_table`
+                 node_color_range = diverging_palette(), # The built-in fampalette for diverging data
+                 node_color_trans = "linear", # The default is scaled by circle area
+                 node_color_interval = c(-3, 3), # The range of `log2_median_ratio` to display
+                 edge_color_interval = c(-3, 3), # The range of `log2_median_ratio` to display
+                 node_size_axis_label = "ASV",
+                 node_color_axis_label = "",
+                 layout = "davidson-harel", # The primary layout algorithm
+                 initial_layout = "reingold-tilford") # The layout algorithm that initializes node locations
+
+
+
