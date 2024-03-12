@@ -9,6 +9,8 @@
 # https://forum.qiime2.org/t/tutorial-integrating-qiime2-and-r-for-data-visualization-and-analysis-using-qiime2r/4121
 if (!requireNamespace("devtools", quietly = TRUE)){install.packages("devtools")}
 devtools::install_github("jbisanz/qiime2R") # current version is 0.99.20
+install.packages("remotes")
+remotes::install_github("jbisanz/qiime2R", force = TRUE)
 
 library(ggplot2)
 library(qiime2R) 
